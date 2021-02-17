@@ -1,0 +1,693 @@
+---
+title: "LAD Homework1"
+output: 
+  html_notebook:
+    highlight: tango
+    number_sections: no
+    theme: darkly
+    toc: yes
+    toc_float: yes
+---
+
+# Part 1. Exploratory Data Analysis
+
+## Part 1.1 Compute summary statistics
+
+### load library
+```{r}
+library(here)
+library(tidyverse)
+library(skimr)
+library(magrittr)
+library(Hmisc)
+library(summarytools)
+library(gmodels)
+```
+
+### read csv file
+
+```{r}
+camp_primary <- read_csv(here("homework1", "camp_primary.csv"), col_names = T)
+```
+
+```{r}
+camp_primary %>% 
+  skim()
+```
+\
+POSFEV has 15 missing values.
+
+```{r}
+## find those missing values
+camp_primary %>% 
+  filter(is.na(POSFEV))
+```
+\
+
+Drop missing values
+```{r}
+camp_primary %<>%
+  filter(!is.na(POSFEV))
+
+camp_primary %>% 
+  skim(POSFEV)
+```
+\
+
+### labeling
+
+```{r}
+label(camp_primary$trt) <- "treatment group"
+label(camp_primary$age_rz) <- "age at rz, years"
+label(camp_primary$POSFEV) <- "post-bronchodilator FEV1 in liters"
+label(camp_primary$visitc) <- "months since rz"
+label(camp_primary$fdays) <- "days since rz"
+label(camp_primary$gender) <- "gender"
+label(camp_primary$ethnic) <- "ethnicity"
+```
+
+```{r}
+camp_primary %<>% 
+  mutate(gender = factor(gender, levels = c("0", "1"),
+                         labels = c("male", "female"))) %>% 
+  mutate(ethnic = factor(ethnic, levels = c("0", "1", "2", "3"),
+                         labels = c("White", "Black", "Hispanic", "Other"))) %>% 
+  mutate(trt = factor(trt, levels = c("0", "1", "2"),
+                         labels = c("placebo", "budesonide", "nedocromil")))
+```
+
+
+## Q1a
+
+### create variable nobs "Number of observations"
+```{r}
+camp_primary <- camp_primary %>% 
+  group_by(id) %>%
+  mutate(nobs=n()) %>% 
+  ungroup()
+
+label(camp_primary$nobs) <- "number of observations"
+```
+
+### Summarize the number of follow-up visits that were completed by the 695 children
+
+```{r}
+camp_primary %>% 
+  group_by(id) %>% 
+  filter(visit == max(visit)) %>%
+  ungroup() %>% 
+  summarise(obs = n(),
+           mean_obs = mean(nobs),
+           sd_obs = sd(nobs),
+           min_obs = min(nobs),
+           max_obs = max(nobs))
+```
+
+Summary of the number of follow-up visits that were completed by the 695 children:
+
+mean = 9.45 (sd=1.48), min=1, max=10, N=695
+
+
+### frequency table of the number of follow-up visits
+
+```{r}
+camp_primary_nobs <- camp_primary %>% 
+  group_by(id) %>% 
+  filter(visit == max(visit)) %>% 
+  ungroup()
+
+camp_primary_nobs %>% 
+ summarytools::freq(nobs, order = "-freq", totals = FALSE)
+
+```
+
+## Q1b
+
+Summarize the baseline characteristics (age, gender and ethnicity) of the children separately for each treatment group. Include the number of children receiving each treatment.
+
+
+```{r}
+camp_primary_nobs %>%
+  group_by(trt) %>% 
+  summarise(obs = n(),
+           mean_age = round(mean(age_rz), 2),
+           sd_age = round(sd(age_rz), 2),
+           min_age = min(age_rz),
+           max_age = max(age_rz)) %>% 
+    ungroup()
+```
+
+#### Two-way tabulation for gender and ethnicity
+
+```{r}
+## gender
+with(camp_primary_nobs, CrossTable(trt, gender, 
+           digits = 2, prop.r = T, prop.c = T, prop.t = F,
+           prop.chisq = F, format = "SPSS"))
+```
+
+```{r}
+## ethnicity
+with(camp_primary_nobs, CrossTable(trt, ethnic, 
+           digits = 2, prop.r = T, prop.c = T, prop.t = F,
+           prop.chisq = F, format = "SPSS"))
+```
+
+
+```{r eval=FALSE, echo=F}
+## for my note
+with(camp_primary_nobs, epiDisplay::tabpct(trt, gender))
+
+camp_primary_nobs %>% 
+  janitor::tabyl(trt, gender)
+```
+\
+
+## Part 1.2a 
+
+Our analysis will focus on comparing pulmonary function over time, separately for each treatment group. In this section, you will explore the patterns of pulmonary function over time and determine a model to compare the trends in the mean pulmonary function over time across the three treatment groups.
+
+a. Ignoring treatment assignment, create a figure displaying the association between postbronchodilator FEV1 and time, where the focus is to describe how the mean FEV1 changes over the 48 months of the primary CAMP study.
+
+```{r}
+# generate some summaries of POSFEV by visits for plotting
+visitc.summaries <-
+    camp_primary %>%
+    group_by(visitc) %>%
+    summarise(avgfev = mean(POSFEV),
+              sdfev = sd(POSFEV),
+              medfev = median(POSFEV),
+              q75fev = quantile(POSFEV, 0.75),
+              q25fev = quantile(POSFEV, 0.25))
+print(visitc.summaries)
+```
+
+```{r}
+# get the number of sample
+n <- length(unique(camp_primary$id))
+
+# Sample mean + 95% CI for the mean
+visitc.summaries %>%
+  ggplot() +
+  geom_errorbar(aes(x = visitc, ymin = avgfev - 2*sdfev/sqrt(n),
+                    ymax = avgfev + 2*sdfev/sqrt(n))) +
+  geom_point(aes(x = visitc, y = avgfev), color = "red") +
+  geom_line(aes(x = visitc, y = avgfev), color = "red") +
+  scale_x_continuous(breaks = c(0, 2, 3, 12, 16, 24, 28, 36, 40, 48)) +
+  ylim(1.5, 3) +
+  theme_classic() + 
+  xlab("Months since randomization") +
+  ylab("post-\n bronchodilator \n FEV1, liters") +
+  ggtitle("Mean FEV1 changes over the 48 months of the primary CAMP study") +
+  labs(subtitle = "Sample mean + 95% CI for the population mean among 695 participants") + 
+  theme(axis.title.y = element_text(angle = 0, vjust = 0.5, size = 10),
+        axis.title.x = element_text(size = 10))
+```
+\
+
+## Part 1.2b
+
+Create a figure displaying the association between post-bronchodilator FEV1 and time separately in each treatment group. Allow the focus of your graph to describe how the mean FEV1 changes for each treatment group over the primary CAMP study period.
+
+```{r}
+# generate some summaries of POSFEV grouped by visits and treatment groups for plotting
+trt.summaries <-
+    camp_primary %>%
+    group_by(visitc, trt) %>%
+    summarise(avgfev = mean(POSFEV),
+              sdfev = sd(POSFEV),
+              medfev = median(POSFEV),
+              q75fev = quantile(POSFEV, 0.75),
+              q25fev = quantile(POSFEV, 0.25))
+print(trt.summaries)
+```
+
+```{r}
+# Sample mean + 95% CI for the mean grouped by treamtments
+trt.summaries %>%
+  ggplot() +
+  geom_errorbar(aes(x = visitc, ymin = avgfev - 2*sdfev/sqrt(n),
+                    ymax = avgfev + 2*sdfev/sqrt(n),
+                    color = trt),
+                width = 1,
+                position = position_dodge(width=0.9)) +
+  geom_point(aes(x = visitc, y = avgfev, color = trt),
+             position = position_dodge(width=0.9)) +
+  geom_line(aes(x = visitc, y = avgfev,
+                group = trt, color = trt),
+            position = position_dodge(width=0.9)) +
+  scale_x_continuous(breaks = c(0, 2, 3, 12, 16, 24, 28, 36, 40, 48)) +
+  ylim(1.5, 3) +
+  theme_classic() + 
+  xlab("Months since randomization") +
+  ylab("post-\n bronchodilator \n FEV1, liters") +
+  ggtitle("Mean FEV1 changes over the 48 months of the primary CAMP study") +
+  labs(subtitle = "Sample mean + 95% CI grouped by 3 treatments for the\npopulation mean among 695 participants") + 
+  theme(axis.title.y = element_text(angle = 0, vjust = 0.5, size = 10),
+        axis.title.x = element_text(size = 10)) +
+  theme(legend.position = c(0.9, 0.2)) +
+  labs(color="Treatment groups") + ## legend's title
+  scale_color_viridis_d() ## use color-blind friendly palettes
+```
+\
+
+
+## Part 1.2c - Spaghetti plot
+
+c. Ignoring treatment assignment, create a figure summarizing how the FEV1 changes over the study period among individual children within the trial.
+
+```{r}
+camp_primary %>% 
+ ggplot() +
+  geom_line(aes(group = id, x = visitc, y = POSFEV), alpha = 0.3) +
+  scale_x_continuous(breaks = c(0, 2, 3, 12, 16, 24, 28, 36, 40, 48)) +
+  ylim(0.5, 6) +
+  theme_classic() + 
+  xlab("Months since randomization") +
+  ylab("post-\n bronchodilator \n FEV1, liters") +
+  ggtitle("FEV1 changes over the 48 months of the primary CAMP study") +
+  labs(subtitle = "Spaghetti plot for 695 individual children") + 
+  theme(axis.title.y = element_text(angle = 0, vjust = 0.5, size = 10),
+        axis.title.x = element_text(size = 10)) + 
+  stat_summary(fun.y = mean, geom = "point", lwd = 2, colour = "red",
+               aes(x = visitc, y = POSFEV)) + ## add children average per visit
+  stat_smooth(aes(group = 1, x = visitc, y = POSFEV)) ## add children mean lowess line
+```
+\
+
+## Part 1.2d - Spaghetti plot by groups
+
+d. Create a figure summarizing how the FEV1 changes over the study period among individual children from each treatment group
+
+```{r}
+camp_primary %>% 
+ ggplot() +
+  geom_line(aes(group = id, x = visitc, y = POSFEV,
+                color = trt), 
+            alpha = 0.3) +
+  scale_x_continuous(breaks = c(0, 2, 3, 12, 16, 24, 28, 36, 40, 48)) +
+  ylim(0.5, 6) +
+  theme_classic() + 
+  xlab("Months since randomization") +
+  ylab("post-\n bronchodilator \n FEV1, liters") +
+  ggtitle("FEV1 changes over the 48 months of the primary CAMP study") +
+  labs(subtitle = "Spaghetti plot for 695 individual children grouped by 3 treatments") + 
+  theme(axis.title.y = element_text(angle = 0, vjust = 0.5, size = 10),
+        axis.title.x = element_text(size = 10)) + 
+  stat_summary(fun.y = mean, geom = "point", lwd = 2, colour = "red",
+               aes(x = visitc, y = POSFEV)) + ## add children average per visit
+  stat_smooth(aes(group = 1, x = visitc, y = POSFEV)) + ## add children mean lowess line
+  facet_wrap("trt", strip.position = "top") +
+  theme(legend.position='none')
+```
+\
+
+## Part 1.2e
+
+e. Based on your exploratory analysis above, propose a model for the mean FEV1 as a function of time which would allow you to compare whether the changes in the mean FEV1 over time differ across treatment group. Using the regression coefficients from your proposed model, specify the null and alternative hypothesis for testing whether the mean changes over time in FEV1 differ across treatment group
+
+Marginal model for the mean FEV1
+
+$$
+E(Y_{ij}|X_{ij}) = \beta_0 + \beta_1visitc_{ij} + \beta_2I(trt_i=budesonide) +
+                  \beta_3I(trt_i=nedocromil) + \\
+                  \beta_4visitc_{ij}*I(trt_i=budesonide) + 
+                  \beta_5visitc_{ij}*I(trt_i=nedocromil); \\
+                  i = 1,2,3,...,695; j=1,2,3,...,10
+$$
+\
+
+null and alternative hypothesis
+
+$$
+H_0: \beta_4=\beta_5=0 \\
+H_a: \beta_4=\beta_5 \ne 0
+$$
+\
+
+## Part 1.2f
+
+Often in randomized controlled trials with longitudinal designs (similar to the CAMP), researchers are not willing to assume a priori that the mean of the primary outcome will change over time according to a parametric model (e.g. linear, quadratic, etc.). Instead researchers fit a model that allows the mean of the primary outcome to be estimated separately at each assessment time; i.e. allowing time to be a factor, not a continuous exposure. Write out a model for the mean FEV1 as a function of time which treats time as a factor (i.e. estimates a separate mean FEV1 at each assessment time) and allows these means to vary across treatment group. Using the regression coefficients from your model, specify the null and alternative hypothesis for testing whether the mean changes over time in FEV1 differ across treatment group.
+
+Model:
+
+- a model for the mean FEV1 as a function of time which treats time as a factor
+
+$trt_{ij}$: treatment groups: placebo; budesonide; nedocromil
+
+$visitc_{ij}$: months since randomization: 0, 2, 4, 12, 16, 24, 28, 36, 40, 48
+
+Propose a model: 
+
+$$ 
+E(Y_{ij}|X_{ij}) = \beta_0 + \beta_1I(visitc_{ij}=2 months) + \beta_2I(visitc_{ij}=4 months) +...+\beta_9I(visitc_{ij}=48 months) + \\
+                  \beta_{10}I(trt_i=budesonide) + \beta_{11}I(trt_i=nedocromil) + \\
+  \beta_{12}I(visitc_{ij}=2 months)*I(trt_i=budesonide) +...+\beta_{20}I(visitc_{ij}=48 months)*I(trt_i=budesonide) +\\
+  \beta_{21}I(visitc_{ij}=2 months)*I(trt_i=nedocromil) +...+\beta_{29}I(visitc_{ij}=48 months)*I(trt_i=nedocromil) ;\\
+    i= 1, 2,..., 695; j=1,2,3,...,10
+$$
+
+null and alternative hypothesis:
+
+$$
+H_0: \beta_{12}=\beta_{13}=...=\beta_{29}=0 \\
+H_a: \beta_{12}=\beta_{13}=...=\beta_{29}\ne 0
+$$
+\
+
+
+# Part 2. Exploratory Data Analysis of the Variance/Covariance
+
+## 2.1 get residuals
+
+Create a set of residuals to allow exploration of the variance and covariance in the CAMP data. Specifically, use a standard regression model (assuming independence of observations) to fit the mean model you proposed in Part I Section f. Use the fit of the model to compute and save the residuals.
+
+
+```{r}
+mod1 <- lm(data = camp_primary, POSFEV ~ factor(visitc)*trt)
+camp_primary$resid1 <- residuals(mod1)
+head(camp_primary, 10)
+```
+\
+
+## 2.2 Variance matrix
+
+2. Use a graphical display and relevant summary statistics to explore the assumption of constant variance over time, overall and then separately within each treatment group.
+
+```{r}
+# Reshape the data to wide format
+camp.wide <- 
+  camp_primary %>%
+  select(id, visitc, trt, resid1) %>% 
+  pivot_wider(names_from = "visitc", ## the column name you want
+              names_prefix = "month", ## modifies your new column names
+              values_from = "resid1") ## the value col in the long data
+head(camp.wide, 10)
+```
+
+### Variance matrix - all
+
+```{r}
+options(digits = 3) 
+camp.wide %>%
+  select(!c(id,trt)) %>% 
+  cov(use = "na.or.complete")
+```
+
+### Variance matrix - placobe
+
+```{r}
+options(digits = 3) 
+camp.wide %>% 
+  filter(trt == "placebo") %>% 
+  select(!c(id,trt)) %>% 
+  cov(use = "na.or.complete")
+```
+
+### Variance matrix - budesonide
+
+```{r}
+options(digits = 3) 
+camp.wide %>% 
+  filter(trt == "budesonide") %>% 
+  select(!c(id,trt)) %>% 
+  cov(use = "na.or.complete")
+```
+
+### Variance matrix - nedocromil
+
+```{r}
+options(digits = 3) 
+camp.wide %>% 
+  filter(trt == "nedocromil") %>% 
+  select(!c(id,trt)) %>% 
+  cov(use = "na.or.complete")
+```
+
+### Residuals scatter plot
+
+```{r}
+camp.wide %>% 
+  select(!c(id,trt)) %>% 
+  pairs
+```
+
+
+\
+
+## 2.3.a empirical correlation matrix
+
+a. Convert your dataset to a wide format and create the empirical correlation matrix based on the residuals you have calculated.
+
+```{r}
+options(digits = 3) 
+    # print fewer digits makes it easier to look at
+    # the correlation matix
+camp.wide %>% 
+  select(!c(id,trt)) %>% 
+  cor(use = "na.or.complete")
+```
+
+## 2.3.b autocor and variogram
+
+b. Using the “visitc” variable to measure time, create a variogram to explore the autocorrelation function (see Lecture 3 do-file for assistance). NOTE: You could also use the “fdays” variable which measures time from randomization in days. Describe the pattern you observe in the autocorrelation function.
+
+### autocorrelation function
+```{r}
+## Fit Linear Model Using Generalized Least Squares
+library(nlme)
+fit_vario <- gls(POSFEV ~ visitc + trt:visitc, data = camp_primary)
+est_acf <- ACF(fit_vario, form=~1|id)
+est_acf
+```
+
+### Variogram
+
+```{r}
+## specify resType="response" to obtain the estimated variogram as defined in class
+est_vario <- Variogram(fit_vario, form = ~visitc|id, resType="response")
+sig2_hat <- var(resid(fit_vario))
+```
+
+```{r}
+## set some defaults for plotting 
+textsize <- 1.5  ## plotting text size
+chrsize  <- 1  ## plotting character (point size) parameter
+linesize <- 2   ## plotting line width parameter
+```
+
+```{r}
+## plot variogram
+par(mfrow=c(1,2),las=1)
+
+scatter.smooth(est_vario$dist, est_vario$variog, ylim=c(0,0.5),
+               ylab="",xlab="Distance (months)", main=expression("Variogram: " ~ hat(gamma)(u[jk])),
+               pch=16, cex.main=textsize, cex.lab=textsize, cex.axis=chrsize, cex=1,
+               lwd=linesize, lpars=list(col='red',lty=1,lwd=linesize),xlim=c(0,50))
+
+abline(h=sig2_hat, lty=2, col='grey',lwd=2)
+
+legend("topleft","Loess smooth", col="red", lty=1,lwd=2,bty='n',cex=linesize)
+
+scatter.smooth(est_vario$dist, 1-est_vario$variog/sig2_hat, pch=16,ylab="",xlab="Distance (Months)",
+               main=expression("Estimated Auto-correlation:" ~ hat(rho)(u[jk]) == 1-hat(gamma)(u[jk])/hat(sigma^2)(u[jk])),
+               cex.main=0.8, cex.lab=textsize, cex.axis=chrsize, cex=linesize/2,
+               lpars=list(col='red',lty=1,lwd=linesize),xlim=c(0,50))
+
+
+```
+
+## 2.4 
+
+4. Based on your findings, propose a parametric model for the within subject correlation structure.
+
+unstructured?
+
+\
+
+# Part 3. Marginal Model Implementation
+
+## 3.1 
+
+Fit the proposed model from PART 1.2.e with the parametric correlation model proposed in PART 2. 
+
+For each of the models, calculate the AIC.
+
+```{r}
+## Fit the model using ML: unstructured variance/covariance
+mod3.1 <- gls(data = camp_primary, 
+              POSFEV ~ as.factor(visitc)+ trt + as.factor(visitc):trt,
+              correlation = corSymm(form = ~ visit | id),
+              weights = varIdent(form = ~ 1 | visit))
+summary(mod3.1)
+esticon(mod3.1, L = m, level = 0.95, beta0 = c(0,0,0), joint.test = T)
+```
+
+
+## 3.2 - exchangeable
+
+Refit the mean model assuming the independence and exchangeable correlation working models.
+
+Compute the AIC for each of these two approaches.
+
+
+```{r}
+## exchangeable correlation working models
+library(doBy)
+mod3.2 <- gls(data = camp_primary, 
+              POSFEV ~ as.factor(visitc)+ trt + as.factor(visitc):trt, ## as.factor(visitc)*trt
+              correlation = corCompSymm(form = ~ visitc | id))
+summary(mod3.2)
+# esticon(mod3.2, L = m, level = 0.95, beta0 = c(0,0,0), joint.test = T)
+
+## L, define matrix for our linear contrasts?
+```
+
+
+## 3.2 - independence
+
+```{r}
+## independence 
+mod3.2.2 <- gls(data = camp_primary, 
+              POSFEV ~ as.factor(visitc)+ trt + as.factor(visitc):trt,
+              correlation = NULL)
+summary(mod3.2.2)
+```
+\
+
+## 3.3 - AR(1) + random intercept model
+
+```{r}
+mod3.3 <- lme(data = camp_primary, 
+              POSFEV ~ as.factor(visitc)+ trt + as.factor(visitc):trt,
+              random = ~1|id, na.action=na.omit,
+              correlation = corExp(form = ~visitc|id))
+summary(mod3.3)
+```
+
+
+## 3.4 test
+
+4. Select the “best fitting” model based on your exploratory analyses and model diagnostics (AIC).
+
+Using the “best fitting” model, conduct the appropriate hypothesis test to determine if the changes in FEV1 over time are the same across the three treatment groups. HINT: use the test command.
+\
+
+
+# Part 5. Short Answer
+
+## Question 5.1: Linear mixed effects (random intercept) model
+
+
+Interpret the coefficients for “visitc” and “1.trt#c.visitc” and provide statistical support for whether there is statistical evidence of a benefit of receiving budesonide compared to placebo for promoting long term improved pulmonary function among children with asthma.
+
+(coefficients interpretation and Wald test for interaction terms)
+
+**Note: exponential spatial correlation model for continuous time variable, AR(1) for discrete time variables**
+
+```{r}
+library(nlme)
+
+## treat visitc as continuous, and assume no baseline difference for treatment groups
+
+fit = lme(POSFEV~visitc+trt:visitc,
+          data=camp_primary,
+          random=~1|id, 
+          na.action=na.omit,
+          correlation=corExp(form=~visitc|id))
+summary(fit)
+
+## anova test for fit, fit2
+
+## Wald test for two interaction terms:
+
+L = cbind(c(0,0,1,0),c(0,0,0,1))
+
+beta = fit$coefficients$fixed
+
+V = fit$varFix
+
+test.stat = t(beta) %*% L %*% solve(t(L) %*% V %*% L) %*% t(L) %*% beta
+
+test.stat
+
+1-pchisq(test.stat,df=2)
+```
+
+$$
+E(Y_{ij}|X_{ij}) = \beta_0 + \beta_1visitc_{ij} + \beta_2visitc_{ij}*I(trt_i=budesonide) + 
+                  \beta_3visitc_{ij}*I(trt_i=nedocromil); \\
+                  i = 1,2,3,...,695; j=1,2,3,...,10
+$$
+$\beta_1$: the difference in mean FEV1 after randomization ($visitc_{i(j+1)}$ vs. $visitc_{ij}$) in the placebo group.
+
+$\beta_2$: the difference between the budesonide treatment and placebo group in the mean FEV1 change after randomization ($visitc_{i(j+1)}$ vs. $visitc_{ij}$).
+
+$\beta_3$: the difference between the nedocromil treatment and placebo group in the mean FEV1 change after randomization ($visitc_{i(j+1)}$ vs. $visitc_{ij}$).
+
+The Wald test for the Group * Time interaction terms is not statistically significant ($\chi2=0.226,\hspace{1.5mm} p>.05$). It suggests there is no difference in the mean FEV1 change after randomization between budesonide and nedocromil treatment
+
+The AR(1) + random intercept model also shows there is no statistically significant difference between the nedocromil treatment and placebo group in the mean FEV1 change after randomization ($\beta2=-0.0002,\hspace{1.5mm} p>.05$).
+
+Therefore, there is no statistical evidence of a benefit of receiving budesonide compared to placebo for promoting long term improved pulmonary function among children with asthma.
+
+```{r eval=F, echo=F}
+## Stata code
+# mixed posfev visitc i.trt#c.visitc || id: , residuals(exp, t(visitc)) 
+# test 1.trt#c.visitc 2.trt#c.visitc
+```
+\
+
+## Question 5.2 estimate the correlation
+
+Question 2: Using the fit of the model, estimate the correlation between the post-bronchodilator FEV1 at baseline assessment (visitc = 0) and 12-months post randomization (i.e. visitc = 12).
+
+```{r}
+## fit the random intercept + exponential model
+fit_pt3_ri_exp <- lme(POSFEV~visitc + trt:visitc, data=camp_primary,
+                      random=~1|id, correlation=corExp(form=~visitc|id), method="REML")
+
+## calculate AIC
+AIC(fit_pt3_ri_exp)
+
+## can also find tau2, sigma2, and rho (calculate from range) from the summary output
+summary(fit_pt3_ri_exp)
+
+## Part 5 Question 2: calculate model-estimated within subject correlation at 12 month lag
+VarCorr(fit_pt3_ri_exp)
+
+tau2 <-  as.numeric(VarCorr(fit_pt3_ri_exp)[1,1])
+tau2 ## variace of the random intercept
+
+sig2 <-  as.numeric(VarCorr(fit_pt3_ri_exp)[2,1])
+sig2
+
+range <- coef(fit_pt3_ri_exp$modelStruct, unconstrained = FALSE)[2]
+range
+
+rho  <- exp(-1/range)
+rho
+
+(tau2 + (rho^(12))*sig2)/(tau2 + sig2)
+
+```
+
+$$
+\tau^2 = 0.355 \\
+\sigma^2=0.0771 \\
+\rho=e^{-1/range}=0.953 \\
+Corr(Y_{i0},Y_{i12})=\frac{\tau^2+\rho^{12}\sigma^2}{\tau^2+\sigma^2} = 0.921
+$$
+
+So, the correlation between the post-bronchodilator FEV1 at baseline assessment (visitc = 0) and 12-months post randomization is $Corr(Y_{i0},Y_{i12})=0.921$.
+\
+
+## Question 5.3 
+
+Question 3: Describe an approach you could take to assess how well the model you fit describes the within subject correlation in the CAMP study.
+
+
+## Question 5.4 
+
+Question 4: As mentioned in the introduction, the children were followed for 4 years in the primary study, after which a subset of children were followed for an additional 5 years in the continuation study. Use camp_continuation dataset, which includes the data from the primary and the continuation studies. Propose and fit a model to determine, for each treatment group separately, whether the monthly rate of change in FEV1 during the continuation study is the same as the monthly rate of change in FEV1 during the primary study. In your solution, i) provide your model for the mean including definitions for all variables and coefficients, ii) provide the three relevant hypothesis tests that you would conduct to answer the question, iii) using the same correlation model as above, fit the model and conduct the three hypothesis tests, iv) state your overall findings.
+
