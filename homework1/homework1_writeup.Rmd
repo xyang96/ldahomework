@@ -302,7 +302,7 @@ camp_primary %>%
 ```
 \
 
-## Part 1.2e
+## Part 1.2e - time as continuous
 
 e. Based on your exploratory analysis above, propose a model for the mean FEV1 as a function of time which would allow you to compare whether the changes in the mean FEV1 over time differ across treatment group. Using the regression coefficients from your proposed model, specify the null and alternative hypothesis for testing whether the mean changes over time in FEV1 differ across treatment group
 
@@ -325,7 +325,7 @@ H_a: \beta_4=\beta_5 \ne 0
 $$
 \
 
-## Part 1.2f
+## Part 1.2f - time as factors
 
 Often in randomized controlled trials with longitudinal designs (similar to the CAMP), researchers are not willing to assume a priori that the mean of the primary outcome will change over time according to a parametric model (e.g. linear, quadratic, etc.). Instead researchers fit a model that allows the mean of the primary outcome to be estimated separately at each assessment time; i.e. allowing time to be a factor, not a continuous exposure. Write out a model for the mean FEV1 as a function of time which treats time as a factor (i.e. estimates a separate mean FEV1 at each assessment time) and allows these means to vary across treatment group. Using the regression coefficients from your model, specify the null and alternative hypothesis for testing whether the mean changes over time in FEV1 differ across treatment group.
 
@@ -335,7 +335,7 @@ Model:
 
 $trt_{ij}$: treatment groups: placebo; budesonide; nedocromil
 
-$visitc_{ij}$: months since randomization: 0, 2, 4, 12, 16, 24, 28, 36, 40, 48
+$visitc_{ij}$: baseline and 48 months since randomization: 0, 2, 4, 12, 16, 24, 28, 36, 40, 48
 
 Propose a model: 
 
@@ -463,6 +463,9 @@ est_acf
 
 ### Variogram
 
+> Variogram is appropriate for irregularly-spaced data or when time is measured on a continuous scale
+
+
 ```{r}
 ## specify resType="response" to obtain the estimated variogram as defined in class
 est_vario <- Variogram(fit_vario, form = ~visitc|id, resType="response")
@@ -496,14 +499,18 @@ scatter.smooth(est_vario$dist, 1-est_vario$variog/sig2_hat, pch=16,ylab="",xlab=
 
 
 ```
+\
+
 
 ## 2.4 
 
 4. Based on your findings, propose a parametric model for the within subject correlation structure.
 
-unstructured?
+Not Toeplitz, exchangeable, banded k, or AR(1), so unstructured?
 
 \
+\
+
 
 # Part 3. Marginal Model Implementation
 
@@ -513,16 +520,18 @@ Fit the proposed model from PART 1.2.e with the parametric correlation model pro
 
 For each of the models, calculate the AIC.
 
-```{r}
+```{r eval=F}
 ## Fit the model using ML: unstructured variance/covariance
+## treat time(visitc) as continuous
+
 mod3.1 <- gls(data = camp_primary, 
-              POSFEV ~ as.factor(visitc)+ trt + as.factor(visitc):trt,
+              POSFEV ~ visitc+ trt + visitc:trt,
               correlation = corSymm(form = ~ visit | id),
               weights = varIdent(form = ~ 1 | visit))
 summary(mod3.1)
-esticon(mod3.1, L = m, level = 0.95, beta0 = c(0,0,0), joint.test = T)
 ```
 
+> It takes too long to run the unsctructured model.
 
 ## 3.2 - exchangeable
 
@@ -535,9 +544,10 @@ Compute the AIC for each of these two approaches.
 ## exchangeable correlation working models
 library(doBy)
 mod3.2 <- gls(data = camp_primary, 
-              POSFEV ~ as.factor(visitc)+ trt + as.factor(visitc):trt, ## as.factor(visitc)*trt
+              POSFEV ~ visitc+ trt + visitc:trt, ## visitc*trt
               correlation = corCompSymm(form = ~ visitc | id))
 summary(mod3.2)
+anova(mod3.2)
 # esticon(mod3.2, L = m, level = 0.95, beta0 = c(0,0,0), joint.test = T)
 
 ## L, define matrix for our linear contrasts?
@@ -549,24 +559,35 @@ summary(mod3.2)
 ```{r}
 ## independence 
 mod3.2.2 <- gls(data = camp_primary, 
-              POSFEV ~ as.factor(visitc)+ trt + as.factor(visitc):trt,
+              POSFEV ~ visitc+ trt + visitc:trt,
               correlation = NULL)
+
 summary(mod3.2.2)
+
+anova(mod3.2.2)
 ```
 \
 
-## 3.3 - AR(1) + random intercept model
+## 3.3 - exponential + random intercept model
 
 ```{r}
 mod3.3 <- lme(data = camp_primary, 
-              POSFEV ~ as.factor(visitc)+ trt + as.factor(visitc):trt,
+              POSFEV ~ visitc+ trt + visitc:trt,
               random = ~1|id, na.action=na.omit,
               correlation = corExp(form = ~visitc|id))
+
 summary(mod3.3)
+
+anova(mod3.3)
 ```
 
 
 ## 3.4 test
+
+```{r}
+anova(mod3.2, mod3.2.2, mod3.3)
+```
+
 
 4. Select the “best fitting” model based on your exploratory analyses and model diagnostics (AIC).
 
@@ -585,6 +606,7 @@ Interpret the coefficients for “visitc” and “1.trt#c.visitc” and provide
 
 **Note: exponential spatial correlation model for continuous time variable, AR(1) for discrete time variables**
 
+
 ```{r}
 library(nlme)
 
@@ -597,21 +619,23 @@ fit = lme(POSFEV~visitc+trt:visitc,
           correlation=corExp(form=~visitc|id))
 summary(fit)
 
-## anova test for fit, fit2
+## F test for interaction term
 
-## Wald test for two interaction terms:
+anova(fit)
 
-L = cbind(c(0,0,1,0),c(0,0,0,1))
-
-beta = fit$coefficients$fixed
-
-V = fit$varFix
-
-test.stat = t(beta) %*% L %*% solve(t(L) %*% V %*% L) %*% t(L) %*% beta
-
-test.stat
-
-1-pchisq(test.stat,df=2)
+# ## for your note: Wald test for two interaction terms:
+# 
+# L = cbind(c(0,0,1,0),c(0,0,0,1))
+# 
+# beta = fit$coefficients$fixed
+# 
+# V = fit$varFix
+# 
+# test.stat = t(beta) %*% L %*% solve(t(L) %*% V %*% L) %*% t(L) %*% beta
+# 
+# test.stat
+# 
+# 1-pchisq(test.stat,df=2)
 ```
 
 $$
@@ -625,9 +649,9 @@ $\beta_2$: the difference between the budesonide treatment and placebo group in 
 
 $\beta_3$: the difference between the nedocromil treatment and placebo group in the mean FEV1 change after randomization ($visitc_{i(j+1)}$ vs. $visitc_{ij}$).
 
-The Wald test for the Group * Time interaction terms is not statistically significant ($\chi2=0.226,\hspace{1.5mm} p>.05$). It suggests there is no difference in the mean FEV1 change after randomization between budesonide and nedocromil treatment
+The F test for the Group * Time interaction terms is not statistically significant ($F=0,\hspace{1.5mm} p>.05$). It suggests there is no difference in the mean FEV1 change after randomization between both treatment groups and the placebo group. So it will not substantially harm the fit of the model if we drop the Group * Time interaction terms.
 
-The AR(1) + random intercept model also shows there is no statistically significant difference between the nedocromil treatment and placebo group in the mean FEV1 change after randomization ($\beta2=-0.0002,\hspace{1.5mm} p>.05$).
+The AR(1) + random intercept model results also show there is no statistically significant difference between the nedocromil treatment and placebo group in the mean FEV1 change after randomization ($\beta2=-0.0002,\hspace{1.5mm} p>.05$).
 
 Therefore, there is no statistical evidence of a benefit of receiving budesonide compared to placebo for promoting long term improved pulmonary function among children with asthma.
 
@@ -686,8 +710,162 @@ So, the correlation between the post-bronchodilator FEV1 at baseline assessment 
 
 Question 3: Describe an approach you could take to assess how well the model you fit describes the within subject correlation in the CAMP study.
 
+EDA. Compare with the empirical correlation matrix using pairwise scatterplot?
+\
 
-## Question 5.4 
+## Question 5.4 - Spline term
 
 Question 4: As mentioned in the introduction, the children were followed for 4 years in the primary study, after which a subset of children were followed for an additional 5 years in the continuation study. Use camp_continuation dataset, which includes the data from the primary and the continuation studies. Propose and fit a model to determine, for each treatment group separately, whether the monthly rate of change in FEV1 during the continuation study is the same as the monthly rate of change in FEV1 during the primary study. In your solution, i) provide your model for the mean including definitions for all variables and coefficients, ii) provide the three relevant hypothesis tests that you would conduct to answer the question, iii) using the same correlation model as above, fit the model and conduct the three hypothesis tests, iv) state your overall findings.
+
+
+1. Model notations and definitions for all variables and coefficients
+
+$$
+E(Y_{ij}|X_{ij}) = \beta_0 + \beta_1visitc_{ij} + \beta_2visitc_{ij}*I(trt_i=budesonide) + 
+                  \beta_3visitc_{ij}*I(trt_i=nedocromil) + \\
+                  \beta_4(visitc_{ij}>52)*(visitc_{ij}-52) + \\
+                  \beta_5(visitc_{ij}>52)*(visitc_{ij}-52)*I(trt_i=budesonide) + \\
+                  \beta_6(visitc_{ij}>52)*(visitc_{ij}-52)*I(trt_i=nedocromil) 
+                  \\ i = 1,2,3,...,695; j=1,2,3,...,16
+$$
+
+
+**Definitions**
+
+$trt_{ij}$: treatment groups: placebo; budesonide; nedocromil
+
+$visitc_{ij}$: 16 time responses across 108 months since randomization: 0, 2, 4, 12, 16, 24, 28, 36, 40, 48, 52, 60, 72, 84, 96, 108
+
+$visitc_{ij}>52$: 
+
+- 0, if follow-up months fewer than or equal 52 months;
+
+- 1, if follow-up months greater than 52 months.
+
+$visitc_{ij}-52$: the numbers of months after 52 months.
+
+
+$\beta_1$: monthly rate of change in FEV1 in the placebo group before 52 months since randomization.
+
+$\beta_2$: the difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group before 52 months since randomization.
+
+$\beta_3$: the difference in the monthly rate of change in FEV1 between the nedocromil treatment and placebo group before 52 months since randomization.
+
+$\beta_4$: the difference in monthly rate of change in FEV1 in the placebo group after vs. before 52 months since randomization.
+
+$\beta_5$: the difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group after vs. before 52 months since randomization.
+
+$\beta_6$: the difference in the monthly rate of change in FEV1 between the nedocromil treatment and placebo group after vs. before 52 months since randomization.
+
+
+2. provide the three relevant hypothesis tests 
+
+$$
+H_0 : \beta_4=\beta_5=\beta_6=0 \\
+H_a : \beta_4=\beta_5=\beta_6 \ne 0 \\
+$$
+
+3. using the same correlation model as above (exponential), fit the model and conduct the three hypothesis tests
+
+
+```{r}
+## read continuation file
+camp_cont <- read_csv(here("homework1", "camp_continuation.csv"), col_names = T)
+
+## remove missingness
+camp_cont %<>%
+  filter(!is.na(POSFEV))
+
+## change trt to factor
+camp_cont %<>% 
+  mutate(trt = factor(trt, levels = c("0", "1", "2"),
+                         labels = c("placebo", "budesonide", "nedocromil")))
+
+## we have 16 visits 
+length(unique(camp_cont$visitc))
+
+## generate a spline term at 52 months
+camp_cont %<>% 
+  mutate(visitc_52 = visitc-52, 
+       visitc_sp = (visitc_52>0)*visitc_52,
+       visitc_52_trt = visitc_52*(as.numeric(trt)-1),
+       visitc_sp_trt = visitc_sp*(as.numeric(trt)-1))
+```
+
+
+```{r}
+## fit a exponential model with a random intercept and a spline term at 52 months
+
+fit_sp <- lme(POSFEV ~ visitc + trt:visitc + visitc_sp + visitc_sp:trt,
+          data=camp_cont,
+          random=~1|id, 
+          na.action=na.omit,
+          correlation=corExp(form=~visitc|id))
+
+summary(fit_sp)
+
+anova(fit_sp)
+```
+
+
+4. 
+
+The F tests for the placebo and treatment spline terms are statistically significant ($F_{placebo}=31,\hspace{1.5mm} p<.0001; \hspace{2mm} F_{trt}=4,\hspace{1.5mm} p<.0001$). It suggests there is statistically significant difference in the monthly rate of change in FEV1 during the continuation study and the primary study in the treatment groups.
+
+The AR(1) + random intercept model results also show there is statistically significant difference in the monthly rate of change in FEV1 in the placebo group after vs. before 52 months since randomization ($\beta_3=-0.005,\hspace{1.5mm} p<.0001$).
+
+Besides, there is statistically significant difference in the monthly rate of change in FEV1 between the nedocromil treatment and placebo group after vs. before 52 months since randomization ($\beta_6=0.004,\hspace{1.5mm} p<.005$).
+
+However, there is no statistically significant difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group after vs. before 52 months since randomization ($\beta_5=0.001,\hspace{1.5mm} p>.05$).
+
+Therefore, the monthly rate of change in FEV1 during the continuation study is the same as the monthly rate of change in FEV1 during the primary study for the budesonide treatment group, but the nedocromil treatment and placebo group have different monthly rate of change in FEV1 during the continuation study comparing with the primary study.
+\
+
+
+#### FYI check the mean response plot
+
+```{r}
+# generate some summaries of POSFEV grouped by visits and treatment groups for plotting
+trtcont.summaries <-
+    camp_cont %>%
+    group_by(visitc, trt) %>%
+    summarise(avgfev = mean(POSFEV),
+              sdfev = sd(POSFEV),
+              medfev = median(POSFEV),
+              q75fev = quantile(POSFEV, 0.75),
+              q25fev = quantile(POSFEV, 0.25))
+
+## ggplot
+trtcont.summaries %>%
+  ggplot() +
+  geom_errorbar(aes(x = visitc, ymin = avgfev - 2*sdfev/sqrt(n),
+                    ymax = avgfev + 2*sdfev/sqrt(n),
+                    color = trt),
+                width = 1,
+                position = position_dodge(width=2.5)) +
+  geom_point(aes(x = visitc, y = avgfev, color = trt),
+             position = position_dodge(width=2.5)) +
+  geom_line(aes(x = visitc, y = avgfev,
+                group = trt, color = trt),
+            position = position_dodge(width=2.5)) +
+  scale_x_continuous(breaks = c(0, 2, 3, 12, 16, 24, 28, 36, 40, 48, 52, 60, 72, 84,96,108)) +
+  ylim(1.5, 4.1) +
+  theme_classic() + 
+  xlab("Months since randomization") +
+  ylab("post-\n bronchodilator \n FEV1, liters") +
+  ggtitle("Mean FEV1 changes over the 108 months of the primary CAMP study") +
+  labs(subtitle = "Sample mean + 95% CI grouped by 3 treatments for the\npopulation mean among 695 participants") + 
+  theme(axis.title.y = element_text(angle = 0, vjust = 0.5, size = 10),
+        axis.title.x = element_text(size = 10)) +
+  theme(legend.position = c(0.9, 0.2)) +
+  labs(color="Treatment groups") + ## legend's title
+  scale_color_viridis_d() ## use color-blind friendly palettes
+
+
+```
+
+
+
+
+
 

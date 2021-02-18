@@ -1,0 +1,40 @@
+---
+title: "Homework1 Abstract and Short Answers "
+output: html_notebook
+---
+
+# Abstract
+
+a. OBJECTIVE: An objective or description of the goal of the analysis
+
+b. STUDY DESIGN: A brief description of the study design
+
+c. METHODS: A methods section describing your statistical analysis (describe both the exploratory analysis and regression models with assumptions). Write this section so that we could replicate your analysis by reading your description.
+
+d. RESULTS: A results section that includes a) descriptive statistics for the data (i.e. describe the sample in detail using summary statistics, be quantitative) b) a summary of your key findings including supporting numerical summaries (i.e. estimated slopes, confidence intervals, pvalues, etc.)
+
+e. CONCLUSION: A conclusion specifically answering the objective of the study.
+
+
+
+
+# Short Answer
+
+## Question 1
+
+Interpret the coefficients for “visitc” and “1.trt#c.visitc” and provide statistical support for whether there is statistical evidence of a benefit of receiving budesonide compared to placebo for promoting long term improved pulmonary function among children with asthma.
+
+
+## Question 2
+
+Using the fit of the model, estimate the correlation between the post-bronchodilator FEV1 at baseline assessment (visitc = 0) and12-months post randomization (i.e. visitc = 12).
+
+
+## Question 3 
+
+Describe an approach you could take to assess how well the model you fit describes the within subject correlation in the CAMP study.
+
+
+## Question 4 
+
+As mentioned in the introduction, the children were followed for 4 years in the primary study, after which a subset of children were followed for an additional 5 years in the continuation study. Use camp_continuation dataset, which includes the data from the primary and the continuation studies. Propose and fit a model to determine, for each treatment group separately, whether the monthly rate of change in FEV1 during the continuation study is the same as the monthly rate of change in FEV1 during the primary study. In your solution, i) provide your model for the mean including definitions for all variables and coefficients, ii) provide the three relevant hypothesis tests that you would conduct to answer the question, iii) using the same correlation model as above, fit the model and conduct the three hypothesis tests, iv) state your overall findings.
