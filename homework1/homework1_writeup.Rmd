@@ -581,11 +581,25 @@ summary(mod3.3)
 anova(mod3.3)
 ```
 
+## 3.3.2 - AR1 + random intercept model
+
+```{r}
+mod3.3.2 <- lme(data = camp_primary, 
+              POSFEV ~ visitc+ trt + visitc:trt,
+              random = ~1|id, na.action=na.omit,
+              correlation = corAR1(form = ~visitc|id))
+
+summary(mod3.3.2)
+
+anova(mod3.3.2)
+```
+\
+
 
 ## 3.4 test
 
 ```{r}
-anova(mod3.2, mod3.2.2, mod3.3)
+anova(mod3.2, mod3.2.2, mod3.3, mod3.3.2)
 ```
 
 
@@ -643,17 +657,22 @@ E(Y_{ij}|X_{ij}) = \beta_0 + \beta_1visitc_{ij} + \beta_2visitc_{ij}*I(trt_i=bud
                   \beta_3visitc_{ij}*I(trt_i=nedocromil); \\
                   i = 1,2,3,...,695; j=1,2,3,...,10
 $$
-$\beta_1$: the difference in mean FEV1 after randomization ($visitc_{i(j+1)}$ vs. $visitc_{ij}$) in the placebo group.
 
-$\beta_2$: the difference between the budesonide treatment and placebo group in the mean FEV1 change after randomization ($visitc_{i(j+1)}$ vs. $visitc_{ij}$).
 
-$\beta_3$: the difference between the nedocromil treatment and placebo group in the mean FEV1 change after randomization ($visitc_{i(j+1)}$ vs. $visitc_{ij}$).
+$\beta_1$: the monthly rate of change in FEV1 in the placebo group in 48-month followup since randomization.
 
-The F test for the Group * Time interaction terms is not statistically significant ($F=0,\hspace{1.5mm} p>.05$). It suggests there is no difference in the mean FEV1 change after randomization between both treatment groups and the placebo group. So it will not substantially harm the fit of the model if we drop the Group * Time interaction terms.
+$\beta_2$: the difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group in 48-month followup since randomization 
 
-The AR(1) + random intercept model results also show there is no statistically significant difference between the nedocromil treatment and placebo group in the mean FEV1 change after randomization ($\beta2=-0.0002,\hspace{1.5mm} p>.05$).
+$\beta_3$: the difference in the monthly rate of change in FEV1 between the nedocromil treatment and placebo group in 48-month followup since randomization.
+
+- Model results: 
+
+The F test for the Group * Time interaction terms is not statistically significant ($F=0.113,\hspace{1.5mm} p>.05$). It suggests there is no difference in the monthly rate of change in FEV1 between both treatment groups and the placebo group. So it will not substantially harm the fit of the model if we drop the Group * Time interaction terms.
+
+The exponential + random intercept model results also show there is no statistically significant difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group in 48-month followup since randomization ($\beta2=-0.00022,\hspace{1.5mm} p>.05$).
 
 Therefore, there is no statistical evidence of a benefit of receiving budesonide compared to placebo for promoting long term improved pulmonary function among children with asthma.
+
 
 ```{r eval=F, echo=F}
 ## Stata code
@@ -661,6 +680,7 @@ Therefore, there is no statistical evidence of a benefit of receiving budesonide
 # test 1.trt#c.visitc 2.trt#c.visitc
 ```
 \
+
 
 ## Question 5.2 estimate the correlation
 
@@ -681,10 +701,10 @@ summary(fit_pt3_ri_exp)
 VarCorr(fit_pt3_ri_exp)
 
 tau2 <-  as.numeric(VarCorr(fit_pt3_ri_exp)[1,1])
-tau2 ## variace of the random intercept
+tau2 ## variance of the random intercept
 
 sig2 <-  as.numeric(VarCorr(fit_pt3_ri_exp)[2,1])
-sig2
+sig2  ## variance of the residual
 
 range <- coef(fit_pt3_ri_exp$modelStruct, unconstrained = FALSE)[2]
 range

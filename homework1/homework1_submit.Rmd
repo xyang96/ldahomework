@@ -1,6 +1,7 @@
 ---
-title: "Homework1 Abstract and Short Answers "
-output: html_notebook
+title: 'Homework1 Abstract and Short Answers '
+output:
+  html_notebook: default
 ---
 
 # Abstract
@@ -16,25 +17,228 @@ d. RESULTS: A results section that includes a) descriptive statistics for the da
 e. CONCLUSION: A conclusion specifically answering the objective of the study.
 
 
-
-
 # Short Answer
 
 ## Question 1
+\
+
+R code:
+```{r}
+library(nlme)
+library(here)
+library(readr)
+library(dplyr)
+library(magrittr)
+
+camp_primary <- read_csv(here("homework1", "camp_primary.csv"), col_names = T)
+camp_primary %<>%
+  filter(!is.na(POSFEV))
+
+# change trt to a factor
+camp_primary %<>% 
+  mutate(trt = factor(trt, levels = c("0", "1", "2"),
+                         labels = c("placebo", "budesonide", "nedocromil")))
+
+# fit a random intercept model with an exponential variance matrix
+## treat visitc as continuous, and assume no baseline difference for treatment groups
+
+fit <- lme(POSFEV~visitc+trt:visitc,
+          data=camp_primary,
+          random=~1|id, 
+          na.action=na.omit,
+          correlation=corExp(form=~visitc|id))
+summary(fit)
+
+## F test for interaction term
+anova(fit)
+```
 
 Interpret the coefficients for “visitc” and “1.trt#c.visitc” and provide statistical support for whether there is statistical evidence of a benefit of receiving budesonide compared to placebo for promoting long term improved pulmonary function among children with asthma.
 
 
+**Model notations**
+
+$$
+E(Y_{ij}|X_{ij}) = \beta_0 + \beta_1visitc_{ij} + \beta_2visitc_{ij}*I(trt_i=budesonide) + 
+                  \beta_3visitc_{ij}*I(trt_i=nedocromil); \\
+                  i = 1,2,3,...,695; j=1,2,3,...,10
+$$
+
+- coefficients for “visitc”: 
+
+$\beta_1$: the monthly rate of change in FEV1 in the placebo group in 48-months followup since randomization.
+
+- coefficients for “1.trt#c.visitc”:
+
+$\beta_2$: the difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group in 48-months followup since randomization 
+
+- Model results: 
+
+The F test for the Group * Time interaction terms is not statistically significant ($F=0.113,\hspace{1.5mm} p>.05$). It suggests there is no difference in the monthly rate of change in FEV1 between both treatment groups and the placebo group. So it will not substantially harm the fit of the model if we drop the Group * Time interaction terms.
+
+The exponential + random intercept model results also show there is no statistically significant difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group in 48-months followup since randomization ($\beta2=-0.00022,\hspace{1.5mm} p>.05$).
+
+Therefore, there is no statistical evidence of a benefit of receiving budesonide compared to placebo for promoting long term improved pulmonary function among children with asthma.
+\
+
+
 ## Question 2
 
-Using the fit of the model, estimate the correlation between the post-bronchodilator FEV1 at baseline assessment (visitc = 0) and12-months post randomization (i.e. visitc = 12).
+Using the fit of the model, estimate the correlation between the post-bronchodilator FEV1 at baseline assessment (visitc = 0) and 12-months post randomization (i.e. visitc = 12).
+
+R code:
+
+```{r}
+fit <- lme(POSFEV~visitc+trt:visitc,
+          data=camp_primary,
+          random=~1|id, 
+          na.action=na.omit,
+          correlation=corExp(form=~visitc|id),
+          method = "REML")
+summary(fit)
+
+## get variance matrix for the random effects
+VarCorr(fit)
+
+tau2 <-  as.numeric(VarCorr(fit)[1,1])
+tau2 ## variance of the random intercept
+
+sig2 <-  as.numeric(VarCorr(fit)[2,1])
+sig2  ## variance of the residual
+
+range <- coef(fit$modelStruct, unconstrained = FALSE)[2]
+range
+
+rho  <- exp(-1/range)
+rho
+
+## calculate correlation between the post-bronchodilator FEV1 at baseline assessment and 12-months post randomization
+
+(tau2 + (rho^(12))*sig2)/(tau2 + sig2)
+```
+
+$$
+\tau^2 = 0.355 \\
+\sigma^2=0.0775 \\
+\rho=e^{-1/range}=0.953 \\
+range = 20.72129 \\
+Corr(Y_{i0},Y_{i12})=\frac{\tau^2+\rho^{12}\sigma^2}{\tau^2+\sigma^2} = 0.921
+$$
+
+So, the correlation between the post-bronchodilator FEV1 at baseline assessment (visitc = 0) and 12-months post randomization is:
+
+$Corr(Y_{i0},Y_{i12})=0.921$.
+\
 
 
 ## Question 3 
 
 Describe an approach you could take to assess how well the model you fit describes the within subject correlation in the CAMP study.
 
+We can compare the estimated correlation for observations u-lag units apart with the correlation we get from the empiral correlation matrix. Also, we can compare it with the correaltion from the auto-correlation function. For example. the correlation for observations 12-lag units apart is 0.921 above. The empirical correlation between baseline and 12-months we got fro the exploratory data analysis is 0.955. So it appears the model we fit describes the within subject correlation in the CAMP study pretty well.
+\
+
 
 ## Question 4 
 
-As mentioned in the introduction, the children were followed for 4 years in the primary study, after which a subset of children were followed for an additional 5 years in the continuation study. Use camp_continuation dataset, which includes the data from the primary and the continuation studies. Propose and fit a model to determine, for each treatment group separately, whether the monthly rate of change in FEV1 during the continuation study is the same as the monthly rate of change in FEV1 during the primary study. In your solution, i) provide your model for the mean including definitions for all variables and coefficients, ii) provide the three relevant hypothesis tests that you would conduct to answer the question, iii) using the same correlation model as above, fit the model and conduct the three hypothesis tests, iv) state your overall findings.
+1. Model notations and definitions for all variables and coefficients
+
+$$
+E(Y_{ij}|X_{ij}) = \beta_0 + \beta_1visitc_{ij} + \beta_2visitc_{ij}*I(trt_i=budesonide) + 
+                  \beta_3visitc_{ij}*I(trt_i=nedocromil) + \\
+                  \beta_4(visitc_{ij}>52)*(visitc_{ij}-52) + \\
+                  \beta_5(visitc_{ij}>52)*(visitc_{ij}-52)*I(trt_i=budesonide) + \\
+                  \beta_6(visitc_{ij}>52)*(visitc_{ij}-52)*I(trt_i=nedocromil) 
+                  \\ i = 1,2,3,...,695; j=1,2,3,...,16
+$$
+
+
+**Definitions**
+
+$trt_{ij}$: treatment groups: placebo; budesonide; nedocromil
+
+$visitc_{ij}$: 16 time responses across 108 months since randomization: 0, 2, 4, 12, 16, 24, 28, 36, 40, 48, 52, 60, 72, 84, 96, 108
+
+$visitc_{ij}>52$: 
+
+- 0, if follow-up months fewer than or equal 52 months;
+
+- 1, if follow-up months greater than 52 months.
+
+$visitc_{ij}-52$: the numbers of months after 52 months.
+
+
+$\beta_1$: monthly rate of change in FEV1 in the placebo group before 52 months since randomization.
+
+$\beta_2$: the difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group before 52 months since randomization.
+
+$\beta_3$: the difference in the monthly rate of change in FEV1 between the nedocromil treatment and placebo group before 52 months since randomization.
+
+$\beta_4$: the difference in monthly rate of change in FEV1 in the placebo group after vs. before 52 months since randomization.
+
+$\beta_5$: the difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group after vs. before 52 months since randomization.
+
+$\beta_6$: the difference in the monthly rate of change in FEV1 between the nedocromil treatment and placebo group after vs. before 52 months since randomization.
+
+
+2. provide the three relevant hypothesis tests 
+
+$$
+H_0 : \beta_4=\beta_5=\beta_6=0 \\
+H_a : \beta_4=\beta_5=\beta_6 \ne 0 \\
+$$
+
+
+3. using the same correlation model as above (exponential), fit the model and conduct the three hypothesis tests
+
+
+```{r}
+## read continuation file
+camp_cont <- read_csv(here("homework1", "camp_continuation.csv"), col_names = T)
+
+## remove missingness
+camp_cont %<>%
+  filter(!is.na(POSFEV))
+
+## change trt to factor
+camp_cont %<>% 
+  mutate(trt = factor(trt, levels = c("0", "1", "2"),
+                         labels = c("placebo", "budesonide", "nedocromil")))
+
+## generate a spline term at 52 months
+camp_cont %<>% 
+  mutate(visitc_52 = visitc-52, 
+       visitc_sp = (visitc_52>0)*visitc_52,
+       visitc_52_trt = visitc_52*(as.numeric(trt)-1),
+       visitc_sp_trt = visitc_sp*(as.numeric(trt)-1))
+```
+
+
+```{r}
+## fit a exponential model with a random intercept and a spline term at 52 months
+
+fit_sp <- lme(POSFEV ~ visitc + trt:visitc + visitc_sp + visitc_sp:trt,
+          data=camp_cont,
+          random=~1|id, 
+          na.action=na.omit,
+          correlation=corExp(form=~visitc|id))
+
+summary(fit_sp)
+
+anova(fit_sp)
+```
+
+
+4. 
+
+The F tests for the placebo and treatment spline terms are statistically significant ($F_{placebo}=30.77,\hspace{1.5mm} p<.0001; \hspace{2mm} F_{trt}=4.16,\hspace{1.5mm} p<.0001$). It suggests there is statistically significant difference in the monthly rate of change in FEV1 during the continuation study and the primary study in the treatment groups.
+
+The exponential + random intercept model results also show there is statistically significant difference in the monthly rate of change in FEV1 in the placebo group after vs. before 52 months since randomization ($\beta_3=-0.005,\hspace{1.5mm} p<.0001$).
+
+Besides, there is statistically significant difference in the monthly rate of change in FEV1 between the nedocromil treatment and placebo group after vs. before 52 months since randomization ($\beta_6=0.004,\hspace{1.5mm} p<.005$).
+
+However, there is no statistically significant difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group after vs. before 52 months since randomization ($\beta_5=0.001,\hspace{1.5mm} p>.05$).
+
+Therefore, the monthly rate of change in FEV1 during the continuation study is the same as the monthly rate of change in FEV1 during the primary study for the budesonide treatment group, but the nedocromil treatment and placebo group have different monthly rate of change in FEV1 during the continuation study comparing with the primary study.
+\
+

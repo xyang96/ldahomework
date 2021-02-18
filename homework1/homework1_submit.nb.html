@@ -1785,24 +1785,452 @@ summary {
 <h1>Short Answer</h1>
 <div id="question-1" class="section level2">
 <h2>Question 1</h2>
+<p><br />
+</p>
+<p>R code:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShubG1lKVxubGlicmFyeShoZXJlKVxuYGBgIn0= -->
+<pre class="r"><code>library(nlme)
+library(here)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiaGVyZSgpIHN0YXJ0cyBhdCAvVXNlcnMvbWFjL0xpYnJhcnkvTW9iaWxlIERvY3VtZW50cy9jb21+YXBwbGV+Q2xvdWREb2NzL0pIU1BILzIwMjAgRmlyc3QgVGVybS9BbmFseXNpcyBvZiBMb25naXR1ZGluYWwgRGF0YS9Bc3NpZ25tZW50L2xkYWhvbWV3b3JrXG4ifQ== -->
+<pre><code>here() starts at /Users/mac/Library/Mobile Documents/com~apple~CloudDocs/JHSPH/2020 First Term/Analysis of Longitudinal Data/Assignment/ldahomework</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShyZWFkcilcbmxpYnJhcnkoZHBseXIpXG5gYGAifQ== -->
+<pre class="r"><code>library(readr)
+library(dplyr)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYZHBseXLigJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3QgaXMgbWFza2VkIGZyb20g4oCYcGFja2FnZTpubG1l4oCZOlxuXG4gICAgY29sbGFwc2VcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOnN0YXRz4oCZOlxuXG4gICAgZmlsdGVyLCBsYWdcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOmJhc2XigJk6XG5cbiAgICBpbnRlcnNlY3QsIHNldGRpZmYsIHNldGVxdWFsLCB1bmlvblxuIn0= -->
+<pre><code>
+Attaching package: ‘dplyr’
+
+The following object is masked from ‘package:nlme’:
+
+    collapse
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShtYWdyaXR0cilcblxuY2FtcF9wcmltYXJ5IDwtIHJlYWRfY3N2KGhlcmUoXCJob21ld29yazFcIiwgXCJjYW1wX3ByaW1hcnkuY3N2XCIpLCBjb2xfbmFtZXMgPSBUKVxuYGBgIn0= -->
+<pre class="r"><code>library(magrittr)
+
+camp_primary &lt;- read_csv(here(&quot;homework1&quot;, &quot;camp_primary.csv&quot;), col_names = T)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUGFyc2VkIHdpdGggY29sdW1uIHNwZWNpZmljYXRpb246XG5jb2xzKFxuICBpZCA9IGNvbF9kb3VibGUoKSxcbiAgYWdlX3J6ID0gY29sX2RvdWJsZSgpLFxuICBQT1NGRVYgPSBjb2xfZG91YmxlKCksXG4gIHZpc2l0YyA9IGNvbF9kb3VibGUoKSxcbiAgZmRheXMgPSBjb2xfZG91YmxlKCksXG4gIGdlbmRlciA9IGNvbF9kb3VibGUoKSxcbiAgZXRobmljID0gY29sX2RvdWJsZSgpLFxuICB0cnQgPSBjb2xfZG91YmxlKCksXG4gIHZpc2l0ID0gY29sX2RvdWJsZSgpXG4pXG4ifQ== -->
+<pre><code>Parsed with column specification:
+cols(
+  id = col_double(),
+  age_rz = col_double(),
+  POSFEV = col_double(),
+  visitc = col_double(),
+  fdays = col_double(),
+  gender = col_double(),
+  ethnic = col_double(),
+  trt = col_double(),
+  visit = col_double()
+)</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2FtcF9wcmltYXJ5ICU8PiVcbiAgZmlsdGVyKCFpcy5uYShQT1NGRVYpKVxuXG4jIGNoYW5nZSB0cnQgdG8gYSBmYWN0b3JcbmNhbXBfcHJpbWFyeSAlPD4lIFxuICBtdXRhdGUodHJ0ID0gZmFjdG9yKHRydCwgbGV2ZWxzID0gYyhcIjBcIiwgXCIxXCIsIFwiMlwiKSxcbiAgICAgICAgICAgICAgICAgICAgICAgICBsYWJlbHMgPSBjKFwicGxhY2Vib1wiLCBcImJ1ZGVzb25pZGVcIiwgXCJuZWRvY3JvbWlsXCIpKSlcblxuIyBmaXQgYSByYW5kb20gaW50ZXJjZXB0IG1vZGVsIHdpdGggYW4gZXhwb25lbnRpYWwgdmFyaWFuY2UgbWF0cml4XG4jIyB0cmVhdCB2aXNpdGMgYXMgY29udGludW91cywgYW5kIGFzc3VtZSBubyBiYXNlbGluZSBkaWZmZXJlbmNlIGZvciB0cmVhdG1lbnQgZ3JvdXBzXG5cbmZpdCA8LSBsbWUoUE9TRkVWfnZpc2l0Yyt0cnQ6dmlzaXRjLFxuICAgICAgICAgIGRhdGE9Y2FtcF9wcmltYXJ5LFxuICAgICAgICAgIHJhbmRvbT1+MXxpZCwgXG4gICAgICAgICAgbmEuYWN0aW9uPW5hLm9taXQsXG4gICAgICAgICAgY29ycmVsYXRpb249Y29yRXhwKGZvcm09fnZpc2l0Y3xpZCkpXG5zdW1tYXJ5KGZpdClcbmBgYCJ9 -->
+<pre class="r"><code>camp_primary %&lt;&gt;%
+  filter(!is.na(POSFEV))
+
+# change trt to a factor
+camp_primary %&lt;&gt;% 
+  mutate(trt = factor(trt, levels = c(&quot;0&quot;, &quot;1&quot;, &quot;2&quot;),
+                         labels = c(&quot;placebo&quot;, &quot;budesonide&quot;, &quot;nedocromil&quot;)))
+
+# fit a random intercept model with an exponential variance matrix
+## treat visitc as continuous, and assume no baseline difference for treatment groups
+
+fit &lt;- lme(POSFEV~visitc+trt:visitc,
+          data=camp_primary,
+          random=~1|id, 
+          na.action=na.omit,
+          correlation=corExp(form=~visitc|id))
+summary(fit)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTGluZWFyIG1peGVkLWVmZmVjdHMgbW9kZWwgZml0IGJ5IFJFTUxcbiBEYXRhOiBjYW1wX3ByaW1hcnkgXG4ifQ== -->
+<pre><code>Linear mixed-effects model fit by REML
+ Data: camp_primary </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6MSwibmNvbCI6M30sInJkZiI6Ikg0c0lBQUFBQUFBQUF3dHlpVERtaXVCaVlHQmdabUJoWUdKZ1pnVXlHVmhEUTl4MExSZ1lXSmlBSEVhZ0JDZUlyZ0FxRWdhclpHRGdBd2tjV1B6ODJQSjlTZ3NRL0k2ZC9BYTc0ZklPVTVpaDhpZ0dzZVlsNXFZV0F4a0NVR3RCZ3N5T25zNHdwaE9jeVphVG4rNlRtWTFtQUdkUmZya2VzaUZ3SnlxZ1c1V2NrMWlNcm9vckpiRWtVUyt0Q0dnQWtQY1BUUXQ3ZmtGSlpuNGVVQk1UeUxPczZGWVVvUW53bCthQm5KS2ltNXhSbXBldGF3aXlBQ3dOd2J4WTJNd1FLNW4rUTQxaWhmazJOUzg5TXk4VjV2YWN4S1RVSENpSEQraGxzSS8xQ29veTgwcGdQZ0dLRnV1VjVKY2t3dFJ4SmVmbndFVEFmbVA0QndBUlUvZHU0d0VBQUE9PSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["AIC"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["logLik"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"-2547.888","2":"-2500.361","3":"1280.944","_rn_":""}],"options":{"columns":{"min":{},"max":[10],"total":[3]},"rows":{"min":[10],"max":[10],"total":[1]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5SYW5kb20gZWZmZWN0czpcbiBGb3JtdWxhOiB+MSB8IGlkXG4gICAgICAgIChJbnRlcmNlcHQpICBSZXNpZHVhbFxuU3RkRGV2OiAgIDAuNTk1OTU5NiAwLjI3ODQ1NDlcblxuQ29ycmVsYXRpb24gU3RydWN0dXJlOiBFeHBvbmVudGlhbCBzcGF0aWFsIGNvcnJlbGF0aW9uXG4gRm9ybXVsYTogfnZpc2l0YyB8IGlkIFxuIFBhcmFtZXRlciBlc3RpbWF0ZShzKTpcbiAgIHJhbmdlIFxuMjAuNzIxMjkgXG5GaXhlZCBlZmZlY3RzOiBQT1NGRVYgfiB2aXNpdGMgKyB0cnQ6dmlzaXRjIFxuIn0= -->
+<pre><code>
+Random effects:
+ Formula: ~1 | id
+        (Intercept)  Residual
+StdDev:   0.5959596 0.2784549
+
+Correlation Structure: Exponential spatial correlation
+ Formula: ~visitc | id 
+ Parameter estimate(s):
+   range 
+20.72129 
+Fixed effects: POSFEV ~ visitc + trt:visitc </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6NX0sInJkZiI6Ikg0c0lBQUFBQUFBQUEzMVN5MUtETUJTTkZHeUw0Mk5HUDhDbExtQUNCQUt1YTJmYytwcHVLVVJscEVrbmhPclhWd05OS3VEb0lwTjd6bjJlbTl6UEZvRzlzQUVBSTJBQ0E0d3NhUUxyNlhIdXhBQ1loZ1FIMGpGdDdrOFpkTjU0NVRtVHgxUU8rOUp6WTRpVE9BbjJESFNoRDhNRStwcHhKQU9oNzBQY1p3SmZ4dlRySFRYSkNJZEpnTDBPQlNHS3NPZkRIaFVsVWVMNVBRcERENkZvVU5NTTQzMngvKzErM2dRSGNoZ2ZhV1VUaEZ3cEZlcWNpVlFSZUZHRU9oaUZFY0tET29mdGFQQXZoRU12L0VFUmlyM0I4aTJhcmtpbGlscWFmRTdMbWlnd2ZSQzVlOHM1NDRvd1puTmxqWVd6NlVTTzF3cjJXMHc1KzNDN2JmYnZjWFZIQmVFWldZdHJQZVNtcUFxUktYU3hRemVDaTJXZGs0clJJaWUvZlpUa0xPTnNWWlJEY1ZtWlZycXJKdTA4RmFuN3d1VkFFbTBIS1dPMkZnV2pNc25vZnNuOVgrVUQ0clNtamJUY3lkNXErdTQwejJ5Mzd0MDVWcmZac2ExZFMrTnJzUFZEUWw4THF2VlpaYm9rcFFJbmNvWHRCdDAxTDZqUVNpUmJ1WUtKVk1mWkdTczEwMm9EMjI4VGE2QU9pUU1BQUE9PSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Value"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Std.Error"],"name":[2],"type":["chr"],"align":["left"]},{"label":["DF"],"name":[3],"type":["chr"],"align":["left"]},{"label":["t-value"],"name":[4],"type":["chr"],"align":["left"]},{"label":["p-value"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"1.8079893","2":"0.024759371","3":"5871","4":"73.02243","5":"0.0000","_rn_":"(Intercept)"},{"1":"0.0205902","2":"0.000467120","3":"5871","4":"44.07901","5":"0.0000","_rn_":"visitc"},{"1":"-0.0002207","2":"0.000696912","3":"5871","4":"-0.31664","5":"0.7515","_rn_":"visitc:trtbudesonide"},{"1":"-0.0003202","2":"0.000701446","3":"5871","4":"-0.45647","5":"0.6481","_rn_":"visitc:trtnedocromil"}],"options":{"columns":{"min":{},"max":[10],"total":[5]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiIENvcnJlbGF0aW9uOiBcbiAgICAgICAgICAgICAgICAgICAgIChJbnRyKSB2aXNpdGMgdnN0Yzp0cnRiXG52aXNpdGMgICAgICAgICAgICAgICAtMC4xODEgICAgICAgICAgICAgICAgIFxudmlzaXRjOnRydGJ1ZGVzb25pZGUgIDAuMDAwIC0wLjY0OCAgICAgICAgICBcbnZpc2l0Yzp0cnRuZWRvY3JvbWlsIC0wLjAwMSAtMC42NDQgIDAuNDMyICAgXG5cblN0YW5kYXJkaXplZCBXaXRoaW4tR3JvdXAgUmVzaWR1YWxzOlxuICAgICAgICBNaW4gICAgICAgICAgUTEgICAgICAgICBNZWQgICAgICAgICAgUTMgICAgICAgICBNYXggXG4tNC4xMjE2MjYyMSAtMC40MTE4MzQwNyAtMC4wMTcxNzE4NyAgMC4zODAzMzAxOCAgMy45MjQ5MjM5MiBcblxuTnVtYmVyIG9mIE9ic2VydmF0aW9uczogNjU2OVxuTnVtYmVyIG9mIEdyb3VwczogNjk1IFxuIn0= -->
+<pre><code> Correlation: 
+                     (Intr) visitc vstc:trtb
+visitc               -0.181                 
+visitc:trtbudesonide  0.000 -0.648          
+visitc:trtnedocromil -0.001 -0.644  0.432   
+
+Standardized Within-Group Residuals:
+        Min          Q1         Med          Q3         Max 
+-4.12162621 -0.41183407 -0.01717187  0.38033018  3.92492392 
+
+Number of Observations: 6569
+Number of Groups: 695 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyMgRiB0ZXN0IGZvciBpbnRlcmFjdGlvbiB0ZXJtXG5hbm92YShmaXQpXG5gYGAifQ== -->
+<pre class="r"><code>## F test for interaction term
+anova(fit)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6MywibmNvbCI6NH0sInJkZiI6Ikg0c0lBQUFBQUFBQUEyMVJ6VTZFTUJEdTh1TzZHRmNUWDRDakhtaW9xQUhqd2NPR3hLdlJaSzhWcWhMWlFrcFpmVEpmeXpkWWJhR3pBV0tUcHZOOU0vUE5UeDlYNjhoYmV3Z2hHem5JUXJhclRPUStQNlZCakpCaktUQlRqb1YrdjFUUW1USWNkWSs3RE8zc3J3NWNhdTcrKzBjcm9PbXJ6cW1wb3NVT0U1SVFIQ1VSNEt2ck9NRXh1UUhzKzM2SUNZa21lUWQzT0F4RDhqOEtjWnhFbDVPMlhVNDNyREV5enA1c042c1VRTTc0SHN6VFlFdkxsZ0dzRFJ5TFdrS2FKWmdGakx3TFVYM2lZVm5vL3VqOGdVc21NbGJMQzJoNld6U0Z6QXp5ZW5RcnRmNTRqS3lrRGVnQjZlVlVVdndxVkNtRmRwT1VlVlhMb3VJcXlkTGY1azZTWjJKQ25MUmNONTBIMlh2TFB3S2lDd3krR0thMUI3YlRsN1IralpRTFV6SCtWbkJZb2x2U0YxWWFzRlRMNlhhRGExRndDWk1vdHNHeWtoVGl2S3dxZ2VsbVE3cy9XaGYvbnEwQ0FBQT0ifQ== -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["numDF"],"name":[1],"type":["int"],"align":["right"]},{"label":["denDF"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["F-value"],"name":[3],"type":["chr"],"align":["left"]},{"label":["p-value"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"1","2":"5871","3":"9191.393","4":"<.0001","_rn_":"(Intercept)"},{"1":"1","2":"5871","3":"4589.816","4":"<.0001","_rn_":"visitc"},{"1":"2","2":"5871","3":"0.113","4":"0.8932","_rn_":"visitc:trt"}],"options":{"columns":{"min":{},"max":[10],"total":[4]},"rows":{"min":[10],"max":[10],"total":[3]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <p>Interpret the coefficients for “visitc” and “1.trt#c.visitc” and provide statistical support for whether there is statistical evidence of a benefit of receiving budesonide compared to placebo for promoting long term improved pulmonary function among children with asthma.</p>
+<p><strong>Model notations</strong></p>
+<p><span class="math display">\[
+E(Y_{ij}|X_{ij}) = \beta_0 + \beta_1visitc_{ij} + \beta_2visitc_{ij}*I(trt_i=budesonide) + 
+                  \beta_3visitc_{ij}*I(trt_i=nedocromil); \\
+                  i = 1,2,3,...,695; j=1,2,3,...,10
+\]</span></p>
+<ul>
+<li>coefficients for “visitc”:</li>
+</ul>
+<p><span class="math inline">\(\beta_1\)</span>: the monthly rate of change in FEV1 in the placebo group in 48-months followup since randomization.</p>
+<ul>
+<li>coefficients for “1.trt#c.visitc”:</li>
+</ul>
+<p><span class="math inline">\(\beta_2\)</span>: the difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group in 48-months followup since randomization</p>
+<ul>
+<li>Model results:</li>
+</ul>
+<p>The F test for the Group * Time interaction terms is not statistically significant (<span class="math inline">\(F=0.113,\hspace{1.5mm} p&gt;.05\)</span>). It suggests there is no difference in the monthly rate of change in FEV1 between both treatment groups and the placebo group. So it will not substantially harm the fit of the model if we drop the Group * Time interaction terms.</p>
+<p>The exponential + random intercept model results also show there is no statistically significant difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group in 48-months followup since randomization (<span class="math inline">\(\beta2=-0.00022,\hspace{1.5mm} p&gt;.05\)</span>).</p>
+<p>Therefore, there is no statistical evidence of a benefit of receiving budesonide compared to placebo for promoting long term improved pulmonary function among children with asthma.<br />
+</p>
 </div>
 <div id="question-2" class="section level2">
 <h2>Question 2</h2>
-<p>Using the fit of the model, estimate the correlation between the post-bronchodilator FEV1 at baseline assessment (visitc = 0) and12-months post randomization (i.e. visitc = 12).</p>
+<p>Using the fit of the model, estimate the correlation between the post-bronchodilator FEV1 at baseline assessment (visitc = 0) and 12-months post randomization (i.e. visitc = 12).</p>
+<p>R code:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZml0IDwtIGxtZShQT1NGRVZ+dmlzaXRjK3RydDp2aXNpdGMsXG4gICAgICAgICAgZGF0YT1jYW1wX3ByaW1hcnksXG4gICAgICAgICAgcmFuZG9tPX4xfGlkLCBcbiAgICAgICAgICBuYS5hY3Rpb249bmEub21pdCxcbiAgICAgICAgICBjb3JyZWxhdGlvbj1jb3JFeHAoZm9ybT1+dmlzaXRjfGlkKSxcbiAgICAgICAgICBtZXRob2QgPSBcIlJFTUxcIilcbnN1bW1hcnkoZml0KVxuYGBgIn0= -->
+<pre class="r"><code>fit &lt;- lme(POSFEV~visitc+trt:visitc,
+          data=camp_primary,
+          random=~1|id, 
+          na.action=na.omit,
+          correlation=corExp(form=~visitc|id),
+          method = &quot;REML&quot;)
+summary(fit)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTGluZWFyIG1peGVkLWVmZmVjdHMgbW9kZWwgZml0IGJ5IFJFTUxcbiBEYXRhOiBjYW1wX3ByaW1hcnkgXG4ifQ== -->
+<pre><code>Linear mixed-effects model fit by REML
+ Data: camp_primary </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6MSwibmNvbCI6M30sInJkZiI6Ikg0c0lBQUFBQUFBQUF3dHlpVERtaXVCaVlHQmdabUJoWUdKZ1pnVXlHVmhEUTl4MExSZ1lXSmlBSEVhZ0JDZUlyZ0FxRWdhclpHRGdBd2tjV1B6ODJQSjlTZ3NRL0k2ZC9BYTc0ZklPVTVpaDhpZ0dzZVlsNXFZV0F4a0NVR3RCZ3N5T25zNHdwaE9jeVphVG4rNlRtWTFtQUdkUmZya2VzaUZ3SnlxZ1c1V2NrMWlNcm9vckpiRWtVUyt0Q0dnQWtQY1BUUXQ3ZmtGSlpuNGVVQk1UeUxPczZGWVVvUW53bCthQm5KS2ltNXhSbXBldGF3S3lBQ3dOd2J4WTJNd1FLNW4rUTQxaWhmazJOUzg5TXk4VjV2YWN4S1RVSENpSEQraGxzSS8xQ29veTgwcGdQZ0dLRnV1VjVKY2t3dFJ4SmVmbndFVEFmbVA0QndENi82QmI0d0VBQUE9PSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["AIC"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["logLik"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"-2547.888","2":"-2500.361","3":"1280.944","_rn_":""}],"options":{"columns":{"min":{},"max":[10],"total":[3]},"rows":{"min":[10],"max":[10],"total":[1]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5SYW5kb20gZWZmZWN0czpcbiBGb3JtdWxhOiB+MSB8IGlkXG4gICAgICAgIChJbnRlcmNlcHQpICBSZXNpZHVhbFxuU3RkRGV2OiAgIDAuNTk1OTU5NiAwLjI3ODQ1NDlcblxuQ29ycmVsYXRpb24gU3RydWN0dXJlOiBFeHBvbmVudGlhbCBzcGF0aWFsIGNvcnJlbGF0aW9uXG4gRm9ybXVsYTogfnZpc2l0YyB8IGlkIFxuIFBhcmFtZXRlciBlc3RpbWF0ZShzKTpcbiAgIHJhbmdlIFxuMjAuNzIxMjkgXG5GaXhlZCBlZmZlY3RzOiBQT1NGRVYgfiB2aXNpdGMgKyB0cnQ6dmlzaXRjIFxuIn0= -->
+<pre><code>
+Random effects:
+ Formula: ~1 | id
+        (Intercept)  Residual
+StdDev:   0.5959596 0.2784549
+
+Correlation Structure: Exponential spatial correlation
+ Formula: ~visitc | id 
+ Parameter estimate(s):
+   range 
+20.72129 
+Fixed effects: POSFEV ~ visitc + trt:visitc </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6NX0sInJkZiI6Ikg0c0lBQUFBQUFBQUEzMVN5MUtETUJTTkZHeUw0Mk5HUDhDbExtQUNCQUt1YTJmYytwcHVLVVJscEVrbmhPclhWd05OS3VEb0lwTjd6bjJlbTl6UEZvRzlzQUVBSTJBQ0E0d3NhUUxyNlhIdXhBQ1loZ1FIMGpGdDdrOFpkTjU0NVRtVHgxUU8rOUp6WTRpVE9BbjJESFNoRDhNRStwcHhKQU9oNzBQY1p3SmZ4dlRySFRYSkNJZEpnTDBPQlNHS3NPZkRIaFVsVWVMNVBRcERENkZvVU5NTTQzMngvKzErM2dRSGNoZ2ZhV1VUaEZ3cEZlcWNpVlFSZUZHRU9oaUZFY0tET29mdGFQQXZoRU12L0VFUmlyM0I4aTJhcmtpbGlscWFmRTdMbWlnd2ZSQzVlOHM1NDRvd1puTmxqWVd6NlVTTzF3cjJXMHc1KzNDN2JmYnZjWFZIQmVFWldZdHJQZVNtcUFxUktYU3hRemVDaTJXZGs0clJJaWUvZlpUa0xPTnNWWlJEY1ZtWlZycXJKdTA4RmFuN3d1VkFFbTBIS1dPMkZnV2pNc25vZnNuOVgrVUQ0clNtamJUY3lkNXErdTZncGtIcjNwMWpkWnNkMjlxMU5MNEdXejhrOUxXZ1dwOVZwa3RTS25BaVY5aHUwRjN6Z2dxdFJMS1ZLNWhJZFp5ZHNWSXpyVGF3L1FiNHgvYzdpUU1BQUE9PSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Value"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Std.Error"],"name":[2],"type":["chr"],"align":["left"]},{"label":["DF"],"name":[3],"type":["chr"],"align":["left"]},{"label":["t-value"],"name":[4],"type":["chr"],"align":["left"]},{"label":["p-value"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"1.8079893","2":"0.024759371","3":"5871","4":"73.02243","5":"0.0000","_rn_":"(Intercept)"},{"1":"0.0205902","2":"0.000467120","3":"5871","4":"44.07901","5":"0.0000","_rn_":"visitc"},{"1":"-0.0002207","2":"0.000696912","3":"5871","4":"-0.31664","5":"0.7515","_rn_":"visitc:trtbudesonide"},{"1":"-0.0003202","2":"0.000701446","3":"5871","4":"-0.45647","5":"0.6481","_rn_":"visitc:trtnedocromil"}],"options":{"columns":{"min":{},"max":[10],"total":[5]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiIENvcnJlbGF0aW9uOiBcbiAgICAgICAgICAgICAgICAgICAgIChJbnRyKSB2aXNpdGMgdnN0Yzp0cnRiXG52aXNpdGMgICAgICAgICAgICAgICAtMC4xODEgICAgICAgICAgICAgICAgIFxudmlzaXRjOnRydGJ1ZGVzb25pZGUgIDAuMDAwIC0wLjY0OCAgICAgICAgICBcbnZpc2l0Yzp0cnRuZWRvY3JvbWlsIC0wLjAwMSAtMC42NDQgIDAuNDMyICAgXG5cblN0YW5kYXJkaXplZCBXaXRoaW4tR3JvdXAgUmVzaWR1YWxzOlxuICAgICAgICBNaW4gICAgICAgICAgUTEgICAgICAgICBNZWQgICAgICAgICAgUTMgICAgICAgICBNYXggXG4tNC4xMjE2MjYyMSAtMC40MTE4MzQwNyAtMC4wMTcxNzE4NyAgMC4zODAzMzAxOCAgMy45MjQ5MjM5MiBcblxuTnVtYmVyIG9mIE9ic2VydmF0aW9uczogNjU2OVxuTnVtYmVyIG9mIEdyb3VwczogNjk1IFxuIn0= -->
+<pre><code> Correlation: 
+                     (Intr) visitc vstc:trtb
+visitc               -0.181                 
+visitc:trtbudesonide  0.000 -0.648          
+visitc:trtnedocromil -0.001 -0.644  0.432   
+
+Standardized Within-Group Residuals:
+        Min          Q1         Med          Q3         Max 
+-4.12162621 -0.41183407 -0.01717187  0.38033018  3.92492392 
+
+Number of Observations: 6569
+Number of Groups: 695 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyMgZ2V0IHZhcmlhbmNlIG1hdHJpeCBmb3IgdGhlIHJhbmRvbSBlZmZlY3RzXG5WYXJDb3JyKGZpdClcbmBgYCJ9 -->
+<pre class="r"><code>## get variance matrix for the random effects
+VarCorr(fit)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiaWQgPSBwZExvZ0Nob2woMSkgXG4gICAgICAgICAgICBWYXJpYW5jZSAgIFN0ZERldiAgIFxuKEludGVyY2VwdCkgMC4zNTUxNjc3OSAwLjU5NTk1OTZcblJlc2lkdWFsICAgIDAuMDc3NTM3MTQgMC4yNzg0NTQ5XG4ifQ== -->
+<pre><code>id = pdLogChol(1) 
+            Variance   StdDev   
+(Intercept) 0.35516779 0.5959596
+Residual    0.07753714 0.2784549</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGF1MiA8LSAgYXMubnVtZXJpYyhWYXJDb3JyKGZpdClbMSwxXSlcbnRhdTIgIyMgdmFyaWFuY2Ugb2YgdGhlIHJhbmRvbSBpbnRlcmNlcHRcbmBgYCJ9 -->
+<pre class="r"><code>tau2 &lt;-  as.numeric(VarCorr(fit)[1,1])
+tau2 ## variance of the random intercept</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuMzU1MTY3OFxuIn0= -->
+<pre><code>[1] 0.3551678</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2lnMiA8LSAgYXMubnVtZXJpYyhWYXJDb3JyKGZpdClbMiwxXSlcbnNpZzIgICMjIHZhcmlhbmNlIG9mIHRoZSByZXNpZHVhbFxuYGBgIn0= -->
+<pre class="r"><code>sig2 &lt;-  as.numeric(VarCorr(fit)[2,1])
+sig2  ## variance of the residual</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuMDc3NTM3MTRcbiJ9 -->
+<pre><code>[1] 0.07753714</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmFuZ2UgPC0gY29lZihmaXQkbW9kZWxTdHJ1Y3QsIHVuY29uc3RyYWluZWQgPSBGQUxTRSlbMl1cbnJhbmdlXG5gYGAifQ== -->
+<pre class="r"><code>range &lt;- coef(fit$modelStruct, unconstrained = FALSE)[2]
+range</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiY29yU3RydWN0LnJhbmdlIFxuICAgICAgIDIwLjcyMTI5IFxuIn0= -->
+<pre><code>corStruct.range 
+       20.72129 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmhvICA8LSBleHAoLTEvcmFuZ2UpXG5yaG9cbmBgYCJ9 -->
+<pre class="r"><code>rho  &lt;- exp(-1/range)
+rho</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiY29yU3RydWN0LnJhbmdlIFxuICAgICAgMC45NTI4ODY0IFxuIn0= -->
+<pre><code>corStruct.range 
+      0.9528864 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyMgY2FsY3VsYXRlIGNvcnJlbGF0aW9uIGJldHdlZW4gdGhlIHBvc3QtYnJvbmNob2RpbGF0b3IgRkVWMSBhdCBiYXNlbGluZSBhc3Nlc3NtZW50IGFuZCAxMi1tb250aHMgcG9zdCByYW5kb21pemF0aW9uXG5cbih0YXUyICsgKHJob14oMTIpKSpzaWcyKS8odGF1MiArIHNpZzIpXG5gYGAifQ== -->
+<pre class="r"><code>## calculate correlation between the post-bronchodilator FEV1 at baseline assessment and 12-months post randomization
+
+(tau2 + (rho^(12))*sig2)/(tau2 + sig2)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiY29yU3RydWN0LnJhbmdlIFxuICAgICAgMC45MjEyMjYzIFxuIn0= -->
+<pre><code>corStruct.range 
+      0.9212263 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p><span class="math display">\[
+\tau^2 = 0.355 \\
+\sigma^2=0.0775 \\
+\rho=e^{-1/range}=0.953 \\
+range = 20.72129 \\
+Corr(Y_{i0},Y_{i12})=\frac{\tau^2+\rho^{12}\sigma^2}{\tau^2+\sigma^2} = 0.921
+\]</span></p>
+<p>So, the correlation between the post-bronchodilator FEV1 at baseline assessment (visitc = 0) and 12-months post randomization is:</p>
+<p><span class="math inline">\(Corr(Y_{i0},Y_{i12})=0.921\)</span>.<br />
+</p>
 </div>
 <div id="question-3" class="section level2">
 <h2>Question 3</h2>
 <p>Describe an approach you could take to assess how well the model you fit describes the within subject correlation in the CAMP study.</p>
+<p>We can compare the estimated correlation for observations u-lag units apart with the correlation we get from the empiral correlation matrix. Also, we can compare it with the correaltion from the auto-correlation function. For example. the correlation for observations 12-lag units apart is 0.921 above. The empirical correlation between baseline and 12-months we got fro the exploratory data analysis is 0.955. So it appears the model we fit describes the within subject correlation in the CAMP study pretty well.<br />
+</p>
 </div>
 <div id="question-4" class="section level2">
 <h2>Question 4</h2>
-<p>As mentioned in the introduction, the children were followed for 4 years in the primary study, after which a subset of children were followed for an additional 5 years in the continuation study. Use camp_continuation dataset, which includes the data from the primary and the continuation studies. Propose and fit a model to determine, for each treatment group separately, whether the monthly rate of change in FEV1 during the continuation study is the same as the monthly rate of change in FEV1 during the primary study. In your solution, i) provide your model for the mean including definitions for all variables and coefficients, ii) provide the three relevant hypothesis tests that you would conduct to answer the question, iii) using the same correlation model as above, fit the model and conduct the three hypothesis tests, iv) state your overall findings.</p>
+<ol style="list-style-type: decimal">
+<li>Model notations and definitions for all variables and coefficients</li>
+</ol>
+<p><span class="math display">\[
+E(Y_{ij}|X_{ij}) = \beta_0 + \beta_1visitc_{ij} + \beta_2visitc_{ij}*I(trt_i=budesonide) + 
+                  \beta_3visitc_{ij}*I(trt_i=nedocromil) + \\
+                  \beta_4(visitc_{ij}&gt;52)*(visitc_{ij}-52) + \\
+                  \beta_5(visitc_{ij}&gt;52)*(visitc_{ij}-52)*I(trt_i=budesonide) + \\
+                  \beta_6(visitc_{ij}&gt;52)*(visitc_{ij}-52)*I(trt_i=nedocromil) 
+                  \\ i = 1,2,3,...,695; j=1,2,3,...,16
+\]</span></p>
+<p><strong>Definitions</strong></p>
+<p><span class="math inline">\(trt_{ij}\)</span>: treatment groups: placebo; budesonide; nedocromil</p>
+<p><span class="math inline">\(visitc_{ij}\)</span>: 16 time responses across 108 months since randomization: 0, 2, 4, 12, 16, 24, 28, 36, 40, 48, 52, 60, 72, 84, 96, 108</p>
+<p><span class="math inline">\(visitc_{ij}&gt;52\)</span>:</p>
+<ul>
+<li><p>0, if follow-up months fewer than or equal 52 months;</p></li>
+<li><p>1, if follow-up months greater than 52 months.</p></li>
+</ul>
+<p><span class="math inline">\(visitc_{ij}-52\)</span>: the numbers of months after 52 months.</p>
+<p><span class="math inline">\(\beta_1\)</span>: monthly rate of change in FEV1 in the placebo group before 52 months since randomization.</p>
+<p><span class="math inline">\(\beta_2\)</span>: the difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group before 52 months since randomization.</p>
+<p><span class="math inline">\(\beta_3\)</span>: the difference in the monthly rate of change in FEV1 between the nedocromil treatment and placebo group before 52 months since randomization.</p>
+<p><span class="math inline">\(\beta_4\)</span>: the difference in monthly rate of change in FEV1 in the placebo group after vs. before 52 months since randomization.</p>
+<p><span class="math inline">\(\beta_5\)</span>: the difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group after vs. before 52 months since randomization.</p>
+<p><span class="math inline">\(\beta_6\)</span>: the difference in the monthly rate of change in FEV1 between the nedocromil treatment and placebo group after vs. before 52 months since randomization.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>provide the three relevant hypothesis tests</li>
+</ol>
+<p><span class="math display">\[
+H_0 : \beta_4=\beta_5=\beta_6=0 \\
+H_a : \beta_4=\beta_5=\beta_6 \ne 0 \\
+\]</span></p>
+<ol start="3" style="list-style-type: decimal">
+<li>using the same correlation model as above (exponential), fit the model and conduct the three hypothesis tests</li>
+</ol>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyMgcmVhZCBjb250aW51YXRpb24gZmlsZVxuY2FtcF9jb250IDwtIHJlYWRfY3N2KGhlcmUoXCJob21ld29yazFcIiwgXCJjYW1wX2NvbnRpbnVhdGlvbi5jc3ZcIiksIGNvbF9uYW1lcyA9IFQpXG5gYGAifQ== -->
+<pre class="r"><code>## read continuation file
+camp_cont &lt;- read_csv(here(&quot;homework1&quot;, &quot;camp_continuation.csv&quot;), col_names = T)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUGFyc2VkIHdpdGggY29sdW1uIHNwZWNpZmljYXRpb246XG5jb2xzKFxuICBpZCA9IGNvbF9kb3VibGUoKSxcbiAgYWdlX3J6ID0gY29sX2RvdWJsZSgpLFxuICBQT1NGRVYgPSBjb2xfZG91YmxlKCksXG4gIHZpc2l0YyA9IGNvbF9kb3VibGUoKSxcbiAgZmRheXMgPSBjb2xfZG91YmxlKCksXG4gIGdlbmRlciA9IGNvbF9kb3VibGUoKSxcbiAgZXRobmljID0gY29sX2RvdWJsZSgpLFxuICB0cnQgPSBjb2xfZG91YmxlKCksXG4gIHZpc2l0ID0gY29sX2RvdWJsZSgpXG4pXG4ifQ== -->
+<pre><code>Parsed with column specification:
+cols(
+  id = col_double(),
+  age_rz = col_double(),
+  POSFEV = col_double(),
+  visitc = col_double(),
+  fdays = col_double(),
+  gender = col_double(),
+  ethnic = col_double(),
+  trt = col_double(),
+  visit = col_double()
+)</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyMgcmVtb3ZlIG1pc3NpbmduZXNzXG5jYW1wX2NvbnQgJTw+JVxuICBmaWx0ZXIoIWlzLm5hKFBPU0ZFVikpXG5cbiMjIGNoYW5nZSB0cnQgdG8gZmFjdG9yXG5jYW1wX2NvbnQgJTw+JSBcbiAgbXV0YXRlKHRydCA9IGZhY3Rvcih0cnQsIGxldmVscyA9IGMoXCIwXCIsIFwiMVwiLCBcIjJcIiksXG4gICAgICAgICAgICAgICAgICAgICAgICAgbGFiZWxzID0gYyhcInBsYWNlYm9cIiwgXCJidWRlc29uaWRlXCIsIFwibmVkb2Nyb21pbFwiKSkpXG5cbiMjIGdlbmVyYXRlIGEgc3BsaW5lIHRlcm0gYXQgNTIgbW9udGhzXG5jYW1wX2NvbnQgJTw+JSBcbiAgbXV0YXRlKHZpc2l0Y181MiA9IHZpc2l0Yy01MiwgXG4gICAgICAgdmlzaXRjX3NwID0gKHZpc2l0Y181Mj4wKSp2aXNpdGNfNTIsXG4gICAgICAgdmlzaXRjXzUyX3RydCA9IHZpc2l0Y181MiooYXMubnVtZXJpYyh0cnQpLTEpLFxuICAgICAgIHZpc2l0Y19zcF90cnQgPSB2aXNpdGNfc3AqKGFzLm51bWVyaWModHJ0KS0xKSlcbmBgYCJ9 -->
+<pre class="r"><code>## remove missingness
+camp_cont %&lt;&gt;%
+  filter(!is.na(POSFEV))
+
+## change trt to factor
+camp_cont %&lt;&gt;% 
+  mutate(trt = factor(trt, levels = c(&quot;0&quot;, &quot;1&quot;, &quot;2&quot;),
+                         labels = c(&quot;placebo&quot;, &quot;budesonide&quot;, &quot;nedocromil&quot;)))
+
+## generate a spline term at 52 months
+camp_cont %&lt;&gt;% 
+  mutate(visitc_52 = visitc-52, 
+       visitc_sp = (visitc_52&gt;0)*visitc_52,
+       visitc_52_trt = visitc_52*(as.numeric(trt)-1),
+       visitc_sp_trt = visitc_sp*(as.numeric(trt)-1))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyMgZml0IGEgZXhwb25lbnRpYWwgbW9kZWwgd2l0aCBhIHJhbmRvbSBpbnRlcmNlcHQgYW5kIGEgc3BsaW5lIHRlcm0gYXQgNTIgbW9udGhzXG5cbmZpdF9zcCA8LSBsbWUoUE9TRkVWIH4gdmlzaXRjICsgdHJ0OnZpc2l0YyArIHZpc2l0Y19zcCArIHZpc2l0Y19zcDp0cnQsXG4gICAgICAgICAgZGF0YT1jYW1wX2NvbnQsXG4gICAgICAgICAgcmFuZG9tPX4xfGlkLCBcbiAgICAgICAgICBuYS5hY3Rpb249bmEub21pdCxcbiAgICAgICAgICBjb3JyZWxhdGlvbj1jb3JFeHAoZm9ybT1+dmlzaXRjfGlkKSlcblxuc3VtbWFyeShmaXRfc3ApXG5gYGAifQ== -->
+<pre class="r"><code>## fit a exponential model with a random intercept and a spline term at 52 months
+
+fit_sp &lt;- lme(POSFEV ~ visitc + trt:visitc + visitc_sp + visitc_sp:trt,
+          data=camp_cont,
+          random=~1|id, 
+          na.action=na.omit,
+          correlation=corExp(form=~visitc|id))
+
+summary(fit_sp)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTGluZWFyIG1peGVkLWVmZmVjdHMgbW9kZWwgZml0IGJ5IFJFTUxcbiBEYXRhOiBjYW1wX2NvbnQgXG4ifQ== -->
+<pre><code>Linear mixed-effects model fit by REML
+ Data: camp_cont </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6MSwibmNvbCI6M30sInJkZiI6Ikg0c0lBQUFBQUFBQUF3dHlpVERtaXVCaVlHQmdabUJoWUdKZ1pnVXlHVmhEUTl4MExSZ1lXSmlBSEVhZ0JDZUlyZ0FxRWdhclpHRGdBd2tjbUMwcHRQdlUvZ1Z3L3N4ZmJKZGRyRjdCK0E3ZG1WQjVGSU5ZOHhKelU0dUJEQUdvdFNCQlprZFBaeGpUQ2M1a3k4bFA5OG5NUmpPQXN5aS9YQS9aRUxnVEZkQ3RTczVKTEVaWHhaV1NXSktvbDFZRU5BREkrNGVtaFQyL29DUXpQdytvaVFua1dWWjBLNHJRQlBoTDgwQk9TZEZOemlqTnk5WTFBMWtBbG9aZ1hpeHNab2lWVFAraFJySENmSnVhbDU2Wmx3cHplMDVpVW1vT2xNTUg5RExZeDNvRlJabDVKVENmQUVXTDlVcnlTeEpoNnJpUzgzTmdJbUMvTWZ3REFNc2Q2dkxqQVFBQSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["AIC"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["logLik"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"-1734.268","2":"-1662.507","3":"877.1341","_rn_":""}],"options":{"columns":{"min":{},"max":[10],"total":[3]},"rows":{"min":[10],"max":[10],"total":[1]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5SYW5kb20gZWZmZWN0czpcbiBGb3JtdWxhOiB+MSB8IGlkXG4gICAgICAgICAoSW50ZXJjZXB0KSAgUmVzaWR1YWxcblN0ZERldjogMC4wMDAzNzM2MjkzIDAuNjg0NjQ0N1xuXG5Db3JyZWxhdGlvbiBTdHJ1Y3R1cmU6IEV4cG9uZW50aWFsIHNwYXRpYWwgY29ycmVsYXRpb25cbiBGb3JtdWxhOiB+dmlzaXRjIHwgaWQgXG4gUGFyYW1ldGVyIGVzdGltYXRlKHMpOlxuICAgcmFuZ2UgXG4xMzUuODk5NSBcbkZpeGVkIGVmZmVjdHM6IFBPU0ZFViB+IHZpc2l0YyArIHRydDp2aXNpdGMgKyB2aXNpdGNfc3AgKyB2aXNpdGNfc3A6dHJ0IFxuIn0= -->
+<pre><code>
+Random effects:
+ Formula: ~1 | id
+         (Intercept)  Residual
+StdDev: 0.0003736293 0.6846447
+
+Correlation Structure: Exponential spatial correlation
+ Formula: ~visitc | id 
+ Parameter estimate(s):
+   range 
+135.8995 
+Fixed effects: POSFEV ~ visitc + trt:visitc + visitc_sp + visitc_sp:trt </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6NywibmNvbCI6NX0sInJkZiI6Ikg0c0lBQUFBQUFBQUE2MlR5VytjTUJTSFhUS0VHYW91VWlybDJtTjd3UEtPblhNYXFkZHV5cTBpUUZ0VVlwRHhwUDNyMDVnWlREQzk5TkNEaFgvZjIveWV6WWZMYTVwZXB3Q0FFN0FCRVRpSjNSYkVuejlkWlJLQVRlVEVFMmZZamQvZnp1bHN0THIxMHExa01xU3ZNWlNZNUZqUW1TQ0lDTWFVNUo1a2ppQ09GVU1CUVVRaEZoQ01PQ1hMUEFnVHlvTE1pRkVoNmVvVVQ4ZVNYREhHcVZvZ2hBU1duUE1sd2k0REpqandVa2ptVklUSU5ZRENRRTQ0VWlSRWxDb3BWb2ZaU0pXai83WVBjMitGZ2xKSTVYMjJsRUVzR0pkZVp4emluQWd4YXdRcFZtTDJ6ekRFbkF0L05WczNVb2tVNWJNbVVMSTh4NnU2cDRlaG9IOVRPVlAwVVJHV3kwZkZzS1RMT01aV0x5M1d4VzA5VE9WakQ3OFU3YjZleE82anJlQTdZem96Z2VqeWF0b2xOcnRiZUNiOUpNTVNPOVA5Z3NzeTh6TjY4MTdiMnBSMWI5LzZROTQxUTJOTEgzbFVYNGQrQXErTzRNSWFlN092NnFIVFRWWC9iZE4xMVpXbXUyM2F5WFllQkZ5czA1NEhNUXZ6YWxabFd3eStDUS9UcXJBRi9HWmNmMDdkcjBLU3JyZE5wMTFRdFB5ZDUvL2NyTUNMdlI0blZXWGxqNzMrbVkxdlBUMllqK3ZaOUUwVysvaFlNdnF6dXNUVFduOXZ0SjlPM0JZM3RSL0hjM2NqaHd1QnZXbTA5WjA0T2tEYjJjTDdwV1hYZW5Mb0Rkdy9BTm1rN2FmRkJBQUEifQ== -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Value"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Std.Error"],"name":[2],"type":["chr"],"align":["left"]},{"label":["DF"],"name":[3],"type":["chr"],"align":["left"]},{"label":["t-value"],"name":[4],"type":["chr"],"align":["left"]},{"label":["p-value"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"1.8127163","2":"0.025944539","3":"8970","4":"69.86890","5":"0.0000","_rn_":"(Intercept)"},{"1":"0.0211327","2":"0.000618555","3":"8970","4":"34.16458","5":"0.0000","_rn_":"visitc"},{"1":"-0.0051940","2":"0.001004121","3":"8970","4":"-5.17266","5":"0.0000","_rn_":"visitc_sp"},{"1":"-0.0002904","2":"0.000908736","3":"8970","4":"-0.31960","5":"0.7493","_rn_":"visitc:trtbudesonide"},{"1":"-0.0010532","2":"0.000911305","3":"8970","4":"-1.15567","5":"0.2478","_rn_":"visitc:trtnedocromil"},{"1":"0.0012343","2":"0.001525092","3":"8970","4":"0.80935","5":"0.4183","_rn_":"trtbudesonide:visitc_sp"},{"1":"0.0043683","2":"0.001533986","3":"8970","4":"2.84771","5":"0.0044","_rn_":"trtnedocromil:visitc_sp"}],"options":{"columns":{"min":{},"max":[10],"total":[5]},"rows":{"min":[10],"max":[10],"total":[7]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiIENvcnJlbGF0aW9uOiBcbiAgICAgICAgICAgICAgICAgICAgICAgIChJbnRyKSB2aXNpdGMgdnN0Y19zIHZzdGM6dHJ0YiB2c3RjOnRydG4gdHJ0YjpfXG52aXNpdGMgICAgICAgICAgICAgICAgICAtMC4yNTkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxudmlzaXRjX3NwICAgICAgICAgICAgICAgIDAuMDU0IC0wLjc4MyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbnZpc2l0Yzp0cnRidWRlc29uaWRlICAgICAwLjAwMCAtMC42MzUgIDAuNTIzICAgICAgICAgICAgICAgICAgICAgICAgICAgXG52aXNpdGM6dHJ0bmVkb2Nyb21pbCAgICAgMC4wMDAgLTAuNjMzICAwLjUyMiAgMC40MzEgICAgICAgICAgICAgICAgICAgIFxudHJ0YnVkZXNvbmlkZTp2aXNpdGNfc3AgIDAuMDAwICAwLjUwNiAtMC42NTcgLTAuNzk2ICAgIC0wLjM0NCAgICAgICAgICBcbnRydG5lZG9jcm9taWw6dmlzaXRjX3NwICAwLjAwMCAgMC41MDMgLTAuNjUzIC0wLjM0MyAgICAtMC43OTYgICAgIDAuNDMwXG5cblN0YW5kYXJkaXplZCBXaXRoaW4tR3JvdXAgUmVzaWR1YWxzOlxuICAgICAgIE1pbiAgICAgICAgIFExICAgICAgICBNZWQgICAgICAgICBRMyAgICAgICAgTWF4IFxuLTIuOTg3MDQ2NCAtMC43MjM0MTEzIC0wLjEyNTczNzAgIDAuNTc4MzczMSAgNC44OTA2MzQwIFxuXG5OdW1iZXIgb2YgT2JzZXJ2YXRpb25zOiA5NjcxXG5OdW1iZXIgb2YgR3JvdXBzOiA2OTUgXG4ifQ== -->
+<pre><code> Correlation: 
+                        (Intr) visitc vstc_s vstc:trtb vstc:trtn trtb:_
+visitc                  -0.259                                         
+visitc_sp                0.054 -0.783                                  
+visitc:trtbudesonide     0.000 -0.635  0.523                           
+visitc:trtnedocromil     0.000 -0.633  0.522  0.431                    
+trtbudesonide:visitc_sp  0.000  0.506 -0.657 -0.796    -0.344          
+trtnedocromil:visitc_sp  0.000  0.503 -0.653 -0.343    -0.796     0.430
+
+Standardized Within-Group Residuals:
+       Min         Q1        Med         Q3        Max 
+-2.9870464 -0.7234113 -0.1257370  0.5783731  4.8906340 
+
+Number of Observations: 9671
+Number of Groups: 695 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYW5vdmEoZml0X3NwKVxuYGBgIn0= -->
+<pre class="r"><code>anova(fit_sp)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6NSwibmNvbCI6NH0sInJkZiI6Ikg0c0lBQUFBQUFBQUE0MVN6VTZEUUJEZVVyQXBwdFdrTDhCUkQyeDJMUzIxOGVDaGFlTFZhTktiV1dGVklsMElMTlVYOE1GOHNlb0F1NVJ5VVpMSnp2Zk56N2N6N1AxcU03VTNOa0tvajB4a29MNEZMckllSDlidUFpSFRBTkNEd0xBOFB5RnBBbzRKTmlxenF1REJER1hqTW5iNy9WVjJRbitkOEoxWHZXcVJJWjE1NUFwZiswUVR6b3g2SHFZTHJ5RWNaMHF3NzA5YmhFT3hUMm1iZ0pJNTZUUS91Y0dFRVBvZlJFQ1IrQWRFNkd6ZTJZY2wySmJuU3NKc3lHSzdXbXNRY3RHQXdkcmRzYmpnR3FZS0hqYzFNcW0ycTdaNkZCMW15UWR1eStySlRpL3VoT1Jad0ZONXFTKzlpL0pJQnJxeVJrOTVxZ2k3SnBZU0JHdG1CTzd5a05ZWk5vaFpybFUxYVlkTU12eVN3WVVBN1RzbGd5U1ZVU0tneUppbzE5SXU3bVVkNHF3UTVXaWhHN3dWNHQyZGx3S3QxNlYzWXJWOHM1WTBmcm8vbW92WFNPaFZXekY3NXJFQ1kxaGh0VUdjWnBIUXM5dkE1bGdta3VrOE8waGl6VlN6b2YwdnhCTmRuaXdEQUFBPSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["numDF"],"name":[1],"type":["int"],"align":["right"]},{"label":["denDF"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["F-value"],"name":[3],"type":["chr"],"align":["left"]},{"label":["p-value"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"1","2":"8970","3":"15402.970","4":"<.0001","_rn_":"(Intercept)"},{"1":"1","2":"8970","3":"5144.184","4":"<.0001","_rn_":"visitc"},{"1":"1","2":"8970","3":"30.773","4":"<.0001","_rn_":"visitc_sp"},{"1":"2","2":"8970","3":"1.711","4":"0.1807","_rn_":"visitc:trt"},{"1":"2","2":"8970","3":"4.160","4":"0.0156","_rn_":"trt:visitc_sp"}],"options":{"columns":{"min":{},"max":[10],"total":[4]},"rows":{"min":[10],"max":[10],"total":[5]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<ol start="4" style="list-style-type: decimal">
+<li></li>
+</ol>
+<p>The F tests for the placebo and treatment spline terms are statistically significant (<span class="math inline">\(F_{placebo}=30.77,\hspace{1.5mm} p&lt;.0001; \hspace{2mm} F_{trt}=4.16,\hspace{1.5mm} p&lt;.0001\)</span>). It suggests there is statistically significant difference in the monthly rate of change in FEV1 during the continuation study and the primary study in the treatment groups.</p>
+<p>The exponential + random intercept model results also show there is statistically significant difference in the monthly rate of change in FEV1 in the placebo group after vs. before 52 months since randomization (<span class="math inline">\(\beta_3=-0.005,\hspace{1.5mm} p&lt;.0001\)</span>).</p>
+<p>Besides, there is statistically significant difference in the monthly rate of change in FEV1 between the nedocromil treatment and placebo group after vs. before 52 months since randomization (<span class="math inline">\(\beta_6=0.004,\hspace{1.5mm} p&lt;.005\)</span>).</p>
+<p>However, there is no statistically significant difference in the monthly rate of change in FEV1 between the budesonide treatment and placebo group after vs. before 52 months since randomization (<span class="math inline">\(\beta_5=0.001,\hspace{1.5mm} p&gt;.05\)</span>).</p>
+<p>Therefore, the monthly rate of change in FEV1 during the continuation study is the same as the monthly rate of change in FEV1 during the primary study for the budesonide treatment group, but the nedocromil treatment and placebo group have different monthly rate of change in FEV1 during the continuation study comparing with the primary study.<br />
+</p>
 <!-- rnb-text-end -->
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiSG9tZXdvcmsxIEFic3RyYWN0IGFuZCBTaG9ydCBBbnN3ZXJzICIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyBBYnN0cmFjdAoKYS4gT0JKRUNUSVZFOiBBbiBvYmplY3RpdmUgb3IgZGVzY3JpcHRpb24gb2YgdGhlIGdvYWwgb2YgdGhlIGFuYWx5c2lzCgpiLiBTVFVEWSBERVNJR046IEEgYnJpZWYgZGVzY3JpcHRpb24gb2YgdGhlIHN0dWR5IGRlc2lnbgoKYy4gTUVUSE9EUzogQSBtZXRob2RzIHNlY3Rpb24gZGVzY3JpYmluZyB5b3VyIHN0YXRpc3RpY2FsIGFuYWx5c2lzIChkZXNjcmliZSBib3RoIHRoZSBleHBsb3JhdG9yeSBhbmFseXNpcyBhbmQgcmVncmVzc2lvbiBtb2RlbHMgd2l0aCBhc3N1bXB0aW9ucykuIFdyaXRlIHRoaXMgc2VjdGlvbiBzbyB0aGF0IHdlIGNvdWxkIHJlcGxpY2F0ZSB5b3VyIGFuYWx5c2lzIGJ5IHJlYWRpbmcgeW91ciBkZXNjcmlwdGlvbi4KCmQuIFJFU1VMVFM6IEEgcmVzdWx0cyBzZWN0aW9uIHRoYXQgaW5jbHVkZXMgYSkgZGVzY3JpcHRpdmUgc3RhdGlzdGljcyBmb3IgdGhlIGRhdGEgKGkuZS4gZGVzY3JpYmUgdGhlIHNhbXBsZSBpbiBkZXRhaWwgdXNpbmcgc3VtbWFyeSBzdGF0aXN0aWNzLCBiZSBxdWFudGl0YXRpdmUpIGIpIGEgc3VtbWFyeSBvZiB5b3VyIGtleSBmaW5kaW5ncyBpbmNsdWRpbmcgc3VwcG9ydGluZyBudW1lcmljYWwgc3VtbWFyaWVzIChpLmUuIGVzdGltYXRlZCBzbG9wZXMsIGNvbmZpZGVuY2UgaW50ZXJ2YWxzLCBwdmFsdWVzLCBldGMuKQoKZS4gQ09OQ0xVU0lPTjogQSBjb25jbHVzaW9uIHNwZWNpZmljYWxseSBhbnN3ZXJpbmcgdGhlIG9iamVjdGl2ZSBvZiB0aGUgc3R1ZHkuCgoKCgojIFNob3J0IEFuc3dlcgoKIyMgUXVlc3Rpb24gMQoKSW50ZXJwcmV0IHRoZSBjb2VmZmljaWVudHMgZm9yIOKAnHZpc2l0Y+KAnSBhbmQg4oCcMS50cnQjYy52aXNpdGPigJ0gYW5kIHByb3ZpZGUgc3RhdGlzdGljYWwgc3VwcG9ydCBmb3Igd2hldGhlciB0aGVyZSBpcyBzdGF0aXN0aWNhbCBldmlkZW5jZSBvZiBhIGJlbmVmaXQgb2YgcmVjZWl2aW5nIGJ1ZGVzb25pZGUgY29tcGFyZWQgdG8gcGxhY2VibyBmb3IgcHJvbW90aW5nIGxvbmcgdGVybSBpbXByb3ZlZCBwdWxtb25hcnkgZnVuY3Rpb24gYW1vbmcgY2hpbGRyZW4gd2l0aCBhc3RobWEuCgoKIyMgUXVlc3Rpb24gMgoKVXNpbmcgdGhlIGZpdCBvZiB0aGUgbW9kZWwsIGVzdGltYXRlIHRoZSBjb3JyZWxhdGlvbiBiZXR3ZWVuIHRoZSBwb3N0LWJyb25jaG9kaWxhdG9yIEZFVjEgYXQgYmFzZWxpbmUgYXNzZXNzbWVudCAodmlzaXRjID0gMCkgYW5kMTItbW9udGhzIHBvc3QgcmFuZG9taXphdGlvbiAoaS5lLiB2aXNpdGMgPSAxMikuCgoKIyMgUXVlc3Rpb24gMyAKCkRlc2NyaWJlIGFuIGFwcHJvYWNoIHlvdSBjb3VsZCB0YWtlIHRvIGFzc2VzcyBob3cgd2VsbCB0aGUgbW9kZWwgeW91IGZpdCBkZXNjcmliZXMgdGhlIHdpdGhpbiBzdWJqZWN0IGNvcnJlbGF0aW9uIGluIHRoZSBDQU1QIHN0dWR5LgoKCiMjIFF1ZXN0aW9uIDQgCgpBcyBtZW50aW9uZWQgaW4gdGhlIGludHJvZHVjdGlvbiwgdGhlIGNoaWxkcmVuIHdlcmUgZm9sbG93ZWQgZm9yIDQgeWVhcnMgaW4gdGhlIHByaW1hcnkgc3R1ZHksIGFmdGVyIHdoaWNoIGEgc3Vic2V0IG9mIGNoaWxkcmVuIHdlcmUgZm9sbG93ZWQgZm9yIGFuIGFkZGl0aW9uYWwgNSB5ZWFycyBpbiB0aGUgY29udGludWF0aW9uIHN0dWR5LiBVc2UgY2FtcF9jb250aW51YXRpb24gZGF0YXNldCwgd2hpY2ggaW5jbHVkZXMgdGhlIGRhdGEgZnJvbSB0aGUgcHJpbWFyeSBhbmQgdGhlIGNvbnRpbnVhdGlvbiBzdHVkaWVzLiBQcm9wb3NlIGFuZCBmaXQgYSBtb2RlbCB0byBkZXRlcm1pbmUsIGZvciBlYWNoIHRyZWF0bWVudCBncm91cCBzZXBhcmF0ZWx5LCB3aGV0aGVyIHRoZSBtb250aGx5IHJhdGUgb2YgY2hhbmdlIGluIEZFVjEgZHVyaW5nIHRoZSBjb250aW51YXRpb24gc3R1ZHkgaXMgdGhlIHNhbWUgYXMgdGhlIG1vbnRobHkgcmF0ZSBvZiBjaGFuZ2UgaW4gRkVWMSBkdXJpbmcgdGhlIHByaW1hcnkgc3R1ZHkuIEluIHlvdXIgc29sdXRpb24sIGkpIHByb3ZpZGUgeW91ciBtb2RlbCBmb3IgdGhlIG1lYW4gaW5jbHVkaW5nIGRlZmluaXRpb25zIGZvciBhbGwgdmFyaWFibGVzIGFuZCBjb2VmZmljaWVudHMsIGlpKSBwcm92aWRlIHRoZSB0aHJlZSByZWxldmFudCBoeXBvdGhlc2lzIHRlc3RzIHRoYXQgeW91IHdvdWxkIGNvbmR1Y3QgdG8gYW5zd2VyIHRoZSBxdWVzdGlvbiwgaWlpKSB1c2luZyB0aGUgc2FtZSBjb3JyZWxhdGlvbiBtb2RlbCBhcyBhYm92ZSwgZml0IHRoZSBtb2RlbCBhbmQgY29uZHVjdCB0aGUgdGhyZWUgaHlwb3RoZXNpcyB0ZXN0cywgaXYpIHN0YXRlIHlvdXIgb3ZlcmFsbCBmaW5kaW5ncy4K</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAnSG9tZXdvcmsxIEFic3RyYWN0IGFuZCBTaG9ydCBBbnN3ZXJzICcKb3V0cHV0OgogIGh0bWxfbm90ZWJvb2s6IGRlZmF1bHQKLS0tCgojIEFic3RyYWN0CgphLiBPQkpFQ1RJVkU6IEFuIG9iamVjdGl2ZSBvciBkZXNjcmlwdGlvbiBvZiB0aGUgZ29hbCBvZiB0aGUgYW5hbHlzaXMKCmIuIFNUVURZIERFU0lHTjogQSBicmllZiBkZXNjcmlwdGlvbiBvZiB0aGUgc3R1ZHkgZGVzaWduCgpjLiBNRVRIT0RTOiBBIG1ldGhvZHMgc2VjdGlvbiBkZXNjcmliaW5nIHlvdXIgc3RhdGlzdGljYWwgYW5hbHlzaXMgKGRlc2NyaWJlIGJvdGggdGhlIGV4cGxvcmF0b3J5IGFuYWx5c2lzIGFuZCByZWdyZXNzaW9uIG1vZGVscyB3aXRoIGFzc3VtcHRpb25zKS4gV3JpdGUgdGhpcyBzZWN0aW9uIHNvIHRoYXQgd2UgY291bGQgcmVwbGljYXRlIHlvdXIgYW5hbHlzaXMgYnkgcmVhZGluZyB5b3VyIGRlc2NyaXB0aW9uLgoKZC4gUkVTVUxUUzogQSByZXN1bHRzIHNlY3Rpb24gdGhhdCBpbmNsdWRlcyBhKSBkZXNjcmlwdGl2ZSBzdGF0aXN0aWNzIGZvciB0aGUgZGF0YSAoaS5lLiBkZXNjcmliZSB0aGUgc2FtcGxlIGluIGRldGFpbCB1c2luZyBzdW1tYXJ5IHN0YXRpc3RpY3MsIGJlIHF1YW50aXRhdGl2ZSkgYikgYSBzdW1tYXJ5IG9mIHlvdXIga2V5IGZpbmRpbmdzIGluY2x1ZGluZyBzdXBwb3J0aW5nIG51bWVyaWNhbCBzdW1tYXJpZXMgKGkuZS4gZXN0aW1hdGVkIHNsb3BlcywgY29uZmlkZW5jZSBpbnRlcnZhbHMsIHB2YWx1ZXMsIGV0Yy4pCgplLiBDT05DTFVTSU9OOiBBIGNvbmNsdXNpb24gc3BlY2lmaWNhbGx5IGFuc3dlcmluZyB0aGUgb2JqZWN0aXZlIG9mIHRoZSBzdHVkeS4KCgojIFNob3J0IEFuc3dlcgoKIyMgUXVlc3Rpb24gMQpcCgpSIGNvZGU6CmBgYHtyfQpsaWJyYXJ5KG5sbWUpCmxpYnJhcnkoaGVyZSkKbGlicmFyeShyZWFkcikKbGlicmFyeShkcGx5cikKbGlicmFyeShtYWdyaXR0cikKCmNhbXBfcHJpbWFyeSA8LSByZWFkX2NzdihoZXJlKCJob21ld29yazEiLCAiY2FtcF9wcmltYXJ5LmNzdiIpLCBjb2xfbmFtZXMgPSBUKQpjYW1wX3ByaW1hcnkgJTw+JQogIGZpbHRlcighaXMubmEoUE9TRkVWKSkKCiMgY2hhbmdlIHRydCB0byBhIGZhY3RvcgpjYW1wX3ByaW1hcnkgJTw+JSAKICBtdXRhdGUodHJ0ID0gZmFjdG9yKHRydCwgbGV2ZWxzID0gYygiMCIsICIxIiwgIjIiKSwKICAgICAgICAgICAgICAgICAgICAgICAgIGxhYmVscyA9IGMoInBsYWNlYm8iLCAiYnVkZXNvbmlkZSIsICJuZWRvY3JvbWlsIikpKQoKIyBmaXQgYSByYW5kb20gaW50ZXJjZXB0IG1vZGVsIHdpdGggYW4gZXhwb25lbnRpYWwgdmFyaWFuY2UgbWF0cml4CiMjIHRyZWF0IHZpc2l0YyBhcyBjb250aW51b3VzLCBhbmQgYXNzdW1lIG5vIGJhc2VsaW5lIGRpZmZlcmVuY2UgZm9yIHRyZWF0bWVudCBncm91cHMKCmZpdCA8LSBsbWUoUE9TRkVWfnZpc2l0Yyt0cnQ6dmlzaXRjLAogICAgICAgICAgZGF0YT1jYW1wX3ByaW1hcnksCiAgICAgICAgICByYW5kb209fjF8aWQsIAogICAgICAgICAgbmEuYWN0aW9uPW5hLm9taXQsCiAgICAgICAgICBjb3JyZWxhdGlvbj1jb3JFeHAoZm9ybT1+dmlzaXRjfGlkKSkKc3VtbWFyeShmaXQpCgojIyBGIHRlc3QgZm9yIGludGVyYWN0aW9uIHRlcm0KYW5vdmEoZml0KQpgYGAKCkludGVycHJldCB0aGUgY29lZmZpY2llbnRzIGZvciDigJx2aXNpdGPigJ0gYW5kIOKAnDEudHJ0I2MudmlzaXRj4oCdIGFuZCBwcm92aWRlIHN0YXRpc3RpY2FsIHN1cHBvcnQgZm9yIHdoZXRoZXIgdGhlcmUgaXMgc3RhdGlzdGljYWwgZXZpZGVuY2Ugb2YgYSBiZW5lZml0IG9mIHJlY2VpdmluZyBidWRlc29uaWRlIGNvbXBhcmVkIHRvIHBsYWNlYm8gZm9yIHByb21vdGluZyBsb25nIHRlcm0gaW1wcm92ZWQgcHVsbW9uYXJ5IGZ1bmN0aW9uIGFtb25nIGNoaWxkcmVuIHdpdGggYXN0aG1hLgoKCioqTW9kZWwgbm90YXRpb25zKioKCiQkCkUoWV97aWp9fFhfe2lqfSkgPSBcYmV0YV8wICsgXGJldGFfMXZpc2l0Y197aWp9ICsgXGJldGFfMnZpc2l0Y197aWp9KkkodHJ0X2k9YnVkZXNvbmlkZSkgKyAKICAgICAgICAgICAgICAgICAgXGJldGFfM3Zpc2l0Y197aWp9KkkodHJ0X2k9bmVkb2Nyb21pbCk7IFxcCiAgICAgICAgICAgICAgICAgIGkgPSAxLDIsMywuLi4sNjk1OyBqPTEsMiwzLC4uLiwxMAokJAoKLSBjb2VmZmljaWVudHMgZm9yIOKAnHZpc2l0Y+KAnTogCgokXGJldGFfMSQ6IHRoZSBtb250aGx5IHJhdGUgb2YgY2hhbmdlIGluIEZFVjEgaW4gdGhlIHBsYWNlYm8gZ3JvdXAgaW4gNDgtbW9udGhzIGZvbGxvd3VwIHNpbmNlIHJhbmRvbWl6YXRpb24uCgotIGNvZWZmaWNpZW50cyBmb3Ig4oCcMS50cnQjYy52aXNpdGPigJ06CgokXGJldGFfMiQ6IHRoZSBkaWZmZXJlbmNlIGluIHRoZSBtb250aGx5IHJhdGUgb2YgY2hhbmdlIGluIEZFVjEgYmV0d2VlbiB0aGUgYnVkZXNvbmlkZSB0cmVhdG1lbnQgYW5kIHBsYWNlYm8gZ3JvdXAgaW4gNDgtbW9udGhzIGZvbGxvd3VwIHNpbmNlIHJhbmRvbWl6YXRpb24gCgotIE1vZGVsIHJlc3VsdHM6IAoKVGhlIEYgdGVzdCBmb3IgdGhlIEdyb3VwICogVGltZSBpbnRlcmFjdGlvbiB0ZXJtcyBpcyBub3Qgc3RhdGlzdGljYWxseSBzaWduaWZpY2FudCAoJEY9MC4xMTMsXGhzcGFjZXsxLjVtbX0gcD4uMDUkKS4gSXQgc3VnZ2VzdHMgdGhlcmUgaXMgbm8gZGlmZmVyZW5jZSBpbiB0aGUgbW9udGhseSByYXRlIG9mIGNoYW5nZSBpbiBGRVYxIGJldHdlZW4gYm90aCB0cmVhdG1lbnQgZ3JvdXBzIGFuZCB0aGUgcGxhY2VibyBncm91cC4gU28gaXQgd2lsbCBub3Qgc3Vic3RhbnRpYWxseSBoYXJtIHRoZSBmaXQgb2YgdGhlIG1vZGVsIGlmIHdlIGRyb3AgdGhlIEdyb3VwICogVGltZSBpbnRlcmFjdGlvbiB0ZXJtcy4KClRoZSBleHBvbmVudGlhbCArIHJhbmRvbSBpbnRlcmNlcHQgbW9kZWwgcmVzdWx0cyBhbHNvIHNob3cgdGhlcmUgaXMgbm8gc3RhdGlzdGljYWxseSBzaWduaWZpY2FudCBkaWZmZXJlbmNlIGluIHRoZSBtb250aGx5IHJhdGUgb2YgY2hhbmdlIGluIEZFVjEgYmV0d2VlbiB0aGUgYnVkZXNvbmlkZSB0cmVhdG1lbnQgYW5kIHBsYWNlYm8gZ3JvdXAgaW4gNDgtbW9udGhzIGZvbGxvd3VwIHNpbmNlIHJhbmRvbWl6YXRpb24gKCRcYmV0YTI9LTAuMDAwMjIsXGhzcGFjZXsxLjVtbX0gcD4uMDUkKS4KClRoZXJlZm9yZSwgdGhlcmUgaXMgbm8gc3RhdGlzdGljYWwgZXZpZGVuY2Ugb2YgYSBiZW5lZml0IG9mIHJlY2VpdmluZyBidWRlc29uaWRlIGNvbXBhcmVkIHRvIHBsYWNlYm8gZm9yIHByb21vdGluZyBsb25nIHRlcm0gaW1wcm92ZWQgcHVsbW9uYXJ5IGZ1bmN0aW9uIGFtb25nIGNoaWxkcmVuIHdpdGggYXN0aG1hLgpcCgoKIyMgUXVlc3Rpb24gMgoKVXNpbmcgdGhlIGZpdCBvZiB0aGUgbW9kZWwsIGVzdGltYXRlIHRoZSBjb3JyZWxhdGlvbiBiZXR3ZWVuIHRoZSBwb3N0LWJyb25jaG9kaWxhdG9yIEZFVjEgYXQgYmFzZWxpbmUgYXNzZXNzbWVudCAodmlzaXRjID0gMCkgYW5kIDEyLW1vbnRocyBwb3N0IHJhbmRvbWl6YXRpb24gKGkuZS4gdmlzaXRjID0gMTIpLgoKUiBjb2RlOgoKYGBge3J9CmZpdCA8LSBsbWUoUE9TRkVWfnZpc2l0Yyt0cnQ6dmlzaXRjLAogICAgICAgICAgZGF0YT1jYW1wX3ByaW1hcnksCiAgICAgICAgICByYW5kb209fjF8aWQsIAogICAgICAgICAgbmEuYWN0aW9uPW5hLm9taXQsCiAgICAgICAgICBjb3JyZWxhdGlvbj1jb3JFeHAoZm9ybT1+dmlzaXRjfGlkKSwKICAgICAgICAgIG1ldGhvZCA9ICJSRU1MIikKc3VtbWFyeShmaXQpCgojIyBnZXQgdmFyaWFuY2UgbWF0cml4IGZvciB0aGUgcmFuZG9tIGVmZmVjdHMKVmFyQ29ycihmaXQpCgp0YXUyIDwtICBhcy5udW1lcmljKFZhckNvcnIoZml0KVsxLDFdKQp0YXUyICMjIHZhcmlhbmNlIG9mIHRoZSByYW5kb20gaW50ZXJjZXB0CgpzaWcyIDwtICBhcy5udW1lcmljKFZhckNvcnIoZml0KVsyLDFdKQpzaWcyICAjIyB2YXJpYW5jZSBvZiB0aGUgcmVzaWR1YWwKCnJhbmdlIDwtIGNvZWYoZml0JG1vZGVsU3RydWN0LCB1bmNvbnN0cmFpbmVkID0gRkFMU0UpWzJdCnJhbmdlCgpyaG8gIDwtIGV4cCgtMS9yYW5nZSkKcmhvCgojIyBjYWxjdWxhdGUgY29ycmVsYXRpb24gYmV0d2VlbiB0aGUgcG9zdC1icm9uY2hvZGlsYXRvciBGRVYxIGF0IGJhc2VsaW5lIGFzc2Vzc21lbnQgYW5kIDEyLW1vbnRocyBwb3N0IHJhbmRvbWl6YXRpb24KCih0YXUyICsgKHJob14oMTIpKSpzaWcyKS8odGF1MiArIHNpZzIpCmBgYAoKJCQKXHRhdV4yID0gMC4zNTUgXFwKXHNpZ21hXjI9MC4wNzc1IFxcClxyaG89ZV57LTEvcmFuZ2V9PTAuOTUzIFxcCnJhbmdlID0gMjAuNzIxMjkgXFwKQ29ycihZX3tpMH0sWV97aTEyfSk9XGZyYWN7XHRhdV4yK1xyaG9eezEyfVxzaWdtYV4yfXtcdGF1XjIrXHNpZ21hXjJ9ID0gMC45MjEKJCQKClNvLCB0aGUgY29ycmVsYXRpb24gYmV0d2VlbiB0aGUgcG9zdC1icm9uY2hvZGlsYXRvciBGRVYxIGF0IGJhc2VsaW5lIGFzc2Vzc21lbnQgKHZpc2l0YyA9IDApIGFuZCAxMi1tb250aHMgcG9zdCByYW5kb21pemF0aW9uIGlzOgoKJENvcnIoWV97aTB9LFlfe2kxMn0pPTAuOTIxJC4KXAoKCiMjIFF1ZXN0aW9uIDMgCgpEZXNjcmliZSBhbiBhcHByb2FjaCB5b3UgY291bGQgdGFrZSB0byBhc3Nlc3MgaG93IHdlbGwgdGhlIG1vZGVsIHlvdSBmaXQgZGVzY3JpYmVzIHRoZSB3aXRoaW4gc3ViamVjdCBjb3JyZWxhdGlvbiBpbiB0aGUgQ0FNUCBzdHVkeS4KCldlIGNhbiBjb21wYXJlIHRoZSBlc3RpbWF0ZWQgY29ycmVsYXRpb24gZm9yIG9ic2VydmF0aW9ucyB1LWxhZyB1bml0cyBhcGFydCB3aXRoIHRoZSBjb3JyZWxhdGlvbiB3ZSBnZXQgZnJvbSB0aGUgZW1waXJhbCBjb3JyZWxhdGlvbiBtYXRyaXguIEFsc28sIHdlIGNhbiBjb21wYXJlIGl0IHdpdGggdGhlIGNvcnJlYWx0aW9uIGZyb20gdGhlIGF1dG8tY29ycmVsYXRpb24gZnVuY3Rpb24uIEZvciBleGFtcGxlLiB0aGUgY29ycmVsYXRpb24gZm9yIG9ic2VydmF0aW9ucyAxMi1sYWcgdW5pdHMgYXBhcnQgaXMgMC45MjEgYWJvdmUuIFRoZSBlbXBpcmljYWwgY29ycmVsYXRpb24gYmV0d2VlbiBiYXNlbGluZSBhbmQgMTItbW9udGhzIHdlIGdvdCBmcm8gdGhlIGV4cGxvcmF0b3J5IGRhdGEgYW5hbHlzaXMgaXMgMC45NTUuIFNvIGl0IGFwcGVhcnMgdGhlIG1vZGVsIHdlIGZpdCBkZXNjcmliZXMgdGhlIHdpdGhpbiBzdWJqZWN0IGNvcnJlbGF0aW9uIGluIHRoZSBDQU1QIHN0dWR5IHByZXR0eSB3ZWxsLgpcCgoKIyMgUXVlc3Rpb24gNCAKCjEuIE1vZGVsIG5vdGF0aW9ucyBhbmQgZGVmaW5pdGlvbnMgZm9yIGFsbCB2YXJpYWJsZXMgYW5kIGNvZWZmaWNpZW50cwoKJCQKRShZX3tpan18WF97aWp9KSA9IFxiZXRhXzAgKyBcYmV0YV8xdmlzaXRjX3tpan0gKyBcYmV0YV8ydmlzaXRjX3tpan0qSSh0cnRfaT1idWRlc29uaWRlKSArIAogICAgICAgICAgICAgICAgICBcYmV0YV8zdmlzaXRjX3tpan0qSSh0cnRfaT1uZWRvY3JvbWlsKSArIFxcCiAgICAgICAgICAgICAgICAgIFxiZXRhXzQodmlzaXRjX3tpan0+NTIpKih2aXNpdGNfe2lqfS01MikgKyBcXAogICAgICAgICAgICAgICAgICBcYmV0YV81KHZpc2l0Y197aWp9PjUyKSoodmlzaXRjX3tpan0tNTIpKkkodHJ0X2k9YnVkZXNvbmlkZSkgKyBcXAogICAgICAgICAgICAgICAgICBcYmV0YV82KHZpc2l0Y197aWp9PjUyKSoodmlzaXRjX3tpan0tNTIpKkkodHJ0X2k9bmVkb2Nyb21pbCkgCiAgICAgICAgICAgICAgICAgIFxcIGkgPSAxLDIsMywuLi4sNjk1OyBqPTEsMiwzLC4uLiwxNgokJAoKCioqRGVmaW5pdGlvbnMqKgoKJHRydF97aWp9JDogdHJlYXRtZW50IGdyb3VwczogcGxhY2VibzsgYnVkZXNvbmlkZTsgbmVkb2Nyb21pbAoKJHZpc2l0Y197aWp9JDogMTYgdGltZSByZXNwb25zZXMgYWNyb3NzIDEwOCBtb250aHMgc2luY2UgcmFuZG9taXphdGlvbjogMCwgMiwgNCwgMTIsIDE2LCAyNCwgMjgsIDM2LCA0MCwgNDgsIDUyLCA2MCwgNzIsIDg0LCA5NiwgMTA4CgokdmlzaXRjX3tpan0+NTIkOiAKCi0gMCwgaWYgZm9sbG93LXVwIG1vbnRocyBmZXdlciB0aGFuIG9yIGVxdWFsIDUyIG1vbnRoczsKCi0gMSwgaWYgZm9sbG93LXVwIG1vbnRocyBncmVhdGVyIHRoYW4gNTIgbW9udGhzLgoKJHZpc2l0Y197aWp9LTUyJDogdGhlIG51bWJlcnMgb2YgbW9udGhzIGFmdGVyIDUyIG1vbnRocy4KCgokXGJldGFfMSQ6IG1vbnRobHkgcmF0ZSBvZiBjaGFuZ2UgaW4gRkVWMSBpbiB0aGUgcGxhY2VibyBncm91cCBiZWZvcmUgNTIgbW9udGhzIHNpbmNlIHJhbmRvbWl6YXRpb24uCgokXGJldGFfMiQ6IHRoZSBkaWZmZXJlbmNlIGluIHRoZSBtb250aGx5IHJhdGUgb2YgY2hhbmdlIGluIEZFVjEgYmV0d2VlbiB0aGUgYnVkZXNvbmlkZSB0cmVhdG1lbnQgYW5kIHBsYWNlYm8gZ3JvdXAgYmVmb3JlIDUyIG1vbnRocyBzaW5jZSByYW5kb21pemF0aW9uLgoKJFxiZXRhXzMkOiB0aGUgZGlmZmVyZW5jZSBpbiB0aGUgbW9udGhseSByYXRlIG9mIGNoYW5nZSBpbiBGRVYxIGJldHdlZW4gdGhlIG5lZG9jcm9taWwgdHJlYXRtZW50IGFuZCBwbGFjZWJvIGdyb3VwIGJlZm9yZSA1MiBtb250aHMgc2luY2UgcmFuZG9taXphdGlvbi4KCiRcYmV0YV80JDogdGhlIGRpZmZlcmVuY2UgaW4gbW9udGhseSByYXRlIG9mIGNoYW5nZSBpbiBGRVYxIGluIHRoZSBwbGFjZWJvIGdyb3VwIGFmdGVyIHZzLiBiZWZvcmUgNTIgbW9udGhzIHNpbmNlIHJhbmRvbWl6YXRpb24uCgokXGJldGFfNSQ6IHRoZSBkaWZmZXJlbmNlIGluIHRoZSBtb250aGx5IHJhdGUgb2YgY2hhbmdlIGluIEZFVjEgYmV0d2VlbiB0aGUgYnVkZXNvbmlkZSB0cmVhdG1lbnQgYW5kIHBsYWNlYm8gZ3JvdXAgYWZ0ZXIgdnMuIGJlZm9yZSA1MiBtb250aHMgc2luY2UgcmFuZG9taXphdGlvbi4KCiRcYmV0YV82JDogdGhlIGRpZmZlcmVuY2UgaW4gdGhlIG1vbnRobHkgcmF0ZSBvZiBjaGFuZ2UgaW4gRkVWMSBiZXR3ZWVuIHRoZSBuZWRvY3JvbWlsIHRyZWF0bWVudCBhbmQgcGxhY2VibyBncm91cCBhZnRlciB2cy4gYmVmb3JlIDUyIG1vbnRocyBzaW5jZSByYW5kb21pemF0aW9uLgoKCjIuIHByb3ZpZGUgdGhlIHRocmVlIHJlbGV2YW50IGh5cG90aGVzaXMgdGVzdHMgCgokJApIXzAgOiBcYmV0YV80PVxiZXRhXzU9XGJldGFfNj0wIFxcCkhfYSA6IFxiZXRhXzQ9XGJldGFfNT1cYmV0YV82IFxuZSAwIFxcCiQkCgoKMy4gdXNpbmcgdGhlIHNhbWUgY29ycmVsYXRpb24gbW9kZWwgYXMgYWJvdmUgKGV4cG9uZW50aWFsKSwgZml0IHRoZSBtb2RlbCBhbmQgY29uZHVjdCB0aGUgdGhyZWUgaHlwb3RoZXNpcyB0ZXN0cwoKCmBgYHtyfQojIyByZWFkIGNvbnRpbnVhdGlvbiBmaWxlCmNhbXBfY29udCA8LSByZWFkX2NzdihoZXJlKCJob21ld29yazEiLCAiY2FtcF9jb250aW51YXRpb24uY3N2IiksIGNvbF9uYW1lcyA9IFQpCgojIyByZW1vdmUgbWlzc2luZ25lc3MKY2FtcF9jb250ICU8PiUKICBmaWx0ZXIoIWlzLm5hKFBPU0ZFVikpCgojIyBjaGFuZ2UgdHJ0IHRvIGZhY3RvcgpjYW1wX2NvbnQgJTw+JSAKICBtdXRhdGUodHJ0ID0gZmFjdG9yKHRydCwgbGV2ZWxzID0gYygiMCIsICIxIiwgIjIiKSwKICAgICAgICAgICAgICAgICAgICAgICAgIGxhYmVscyA9IGMoInBsYWNlYm8iLCAiYnVkZXNvbmlkZSIsICJuZWRvY3JvbWlsIikpKQoKIyMgZ2VuZXJhdGUgYSBzcGxpbmUgdGVybSBhdCA1MiBtb250aHMKY2FtcF9jb250ICU8PiUgCiAgbXV0YXRlKHZpc2l0Y181MiA9IHZpc2l0Yy01MiwgCiAgICAgICB2aXNpdGNfc3AgPSAodmlzaXRjXzUyPjApKnZpc2l0Y181MiwKICAgICAgIHZpc2l0Y181Ml90cnQgPSB2aXNpdGNfNTIqKGFzLm51bWVyaWModHJ0KS0xKSwKICAgICAgIHZpc2l0Y19zcF90cnQgPSB2aXNpdGNfc3AqKGFzLm51bWVyaWModHJ0KS0xKSkKYGBgCgoKYGBge3J9CiMjIGZpdCBhIGV4cG9uZW50aWFsIG1vZGVsIHdpdGggYSByYW5kb20gaW50ZXJjZXB0IGFuZCBhIHNwbGluZSB0ZXJtIGF0IDUyIG1vbnRocwoKZml0X3NwIDwtIGxtZShQT1NGRVYgfiB2aXNpdGMgKyB0cnQ6dmlzaXRjICsgdmlzaXRjX3NwICsgdmlzaXRjX3NwOnRydCwKICAgICAgICAgIGRhdGE9Y2FtcF9jb250LAogICAgICAgICAgcmFuZG9tPX4xfGlkLCAKICAgICAgICAgIG5hLmFjdGlvbj1uYS5vbWl0LAogICAgICAgICAgY29ycmVsYXRpb249Y29yRXhwKGZvcm09fnZpc2l0Y3xpZCkpCgpzdW1tYXJ5KGZpdF9zcCkKCmFub3ZhKGZpdF9zcCkKYGBgCgoKNC4gCgpUaGUgRiB0ZXN0cyBmb3IgdGhlIHBsYWNlYm8gYW5kIHRyZWF0bWVudCBzcGxpbmUgdGVybXMgYXJlIHN0YXRpc3RpY2FsbHkgc2lnbmlmaWNhbnQgKCRGX3twbGFjZWJvfT0zMC43NyxcaHNwYWNlezEuNW1tfSBwPC4wMDAxOyBcaHNwYWNlezJtbX0gRl97dHJ0fT00LjE2LFxoc3BhY2V7MS41bW19IHA8LjAwMDEkKS4gSXQgc3VnZ2VzdHMgdGhlcmUgaXMgc3RhdGlzdGljYWxseSBzaWduaWZpY2FudCBkaWZmZXJlbmNlIGluIHRoZSBtb250aGx5IHJhdGUgb2YgY2hhbmdlIGluIEZFVjEgZHVyaW5nIHRoZSBjb250aW51YXRpb24gc3R1ZHkgYW5kIHRoZSBwcmltYXJ5IHN0dWR5IGluIHRoZSB0cmVhdG1lbnQgZ3JvdXBzLgoKVGhlIGV4cG9uZW50aWFsICsgcmFuZG9tIGludGVyY2VwdCBtb2RlbCByZXN1bHRzIGFsc28gc2hvdyB0aGVyZSBpcyBzdGF0aXN0aWNhbGx5IHNpZ25pZmljYW50IGRpZmZlcmVuY2UgaW4gdGhlIG1vbnRobHkgcmF0ZSBvZiBjaGFuZ2UgaW4gRkVWMSBpbiB0aGUgcGxhY2VibyBncm91cCBhZnRlciB2cy4gYmVmb3JlIDUyIG1vbnRocyBzaW5jZSByYW5kb21pemF0aW9uICgkXGJldGFfMz0tMC4wMDUsXGhzcGFjZXsxLjVtbX0gcDwuMDAwMSQpLgoKQmVzaWRlcywgdGhlcmUgaXMgc3RhdGlzdGljYWxseSBzaWduaWZpY2FudCBkaWZmZXJlbmNlIGluIHRoZSBtb250aGx5IHJhdGUgb2YgY2hhbmdlIGluIEZFVjEgYmV0d2VlbiB0aGUgbmVkb2Nyb21pbCB0cmVhdG1lbnQgYW5kIHBsYWNlYm8gZ3JvdXAgYWZ0ZXIgdnMuIGJlZm9yZSA1MiBtb250aHMgc2luY2UgcmFuZG9taXphdGlvbiAoJFxiZXRhXzY9MC4wMDQsXGhzcGFjZXsxLjVtbX0gcDwuMDA1JCkuCgpIb3dldmVyLCB0aGVyZSBpcyBubyBzdGF0aXN0aWNhbGx5IHNpZ25pZmljYW50IGRpZmZlcmVuY2UgaW4gdGhlIG1vbnRobHkgcmF0ZSBvZiBjaGFuZ2UgaW4gRkVWMSBiZXR3ZWVuIHRoZSBidWRlc29uaWRlIHRyZWF0bWVudCBhbmQgcGxhY2VibyBncm91cCBhZnRlciB2cy4gYmVmb3JlIDUyIG1vbnRocyBzaW5jZSByYW5kb21pemF0aW9uICgkXGJldGFfNT0wLjAwMSxcaHNwYWNlezEuNW1tfSBwPi4wNSQpLgoKVGhlcmVmb3JlLCB0aGUgbW9udGhseSByYXRlIG9mIGNoYW5nZSBpbiBGRVYxIGR1cmluZyB0aGUgY29udGludWF0aW9uIHN0dWR5IGlzIHRoZSBzYW1lIGFzIHRoZSBtb250aGx5IHJhdGUgb2YgY2hhbmdlIGluIEZFVjEgZHVyaW5nIHRoZSBwcmltYXJ5IHN0dWR5IGZvciB0aGUgYnVkZXNvbmlkZSB0cmVhdG1lbnQgZ3JvdXAsIGJ1dCB0aGUgbmVkb2Nyb21pbCB0cmVhdG1lbnQgYW5kIHBsYWNlYm8gZ3JvdXAgaGF2ZSBkaWZmZXJlbnQgbW9udGhseSByYXRlIG9mIGNoYW5nZSBpbiBGRVYxIGR1cmluZyB0aGUgY29udGludWF0aW9uIHN0dWR5IGNvbXBhcmluZyB3aXRoIHRoZSBwcmltYXJ5IHN0dWR5LgpcCgo=</div>
 
 
 
